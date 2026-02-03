@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import './App.css'
 import Login from './components/Login.jsx'
 import Home from './components/Home.jsx'
+import Profile from './components/Profile.jsx'
 
 // Protected Route component
 function ProtectedRoute({ children }) {
@@ -32,6 +33,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Home />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/profile" 
+          element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           } 
         />
