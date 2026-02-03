@@ -12,7 +12,9 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
-
+  "dependencies": {
+    "express": "^5.2.1"
+  },
   "engines": {
   "node": "25.4.0"
 }
