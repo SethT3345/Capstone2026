@@ -1,9 +1,16 @@
 // client/src/App.jsx
 
 import { useState, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
+import Login from './components/Login.jsx'
+import Home from './components/Home.jsx'
+
+// Protected Route component
+function ProtectedRoute({ children }) {
+  const user = localStorage.getItem('user');
+  return user ? children : <Navigate to="/login" />;
+}
 
 function App() {
   const [count, setCount] = useState(0);
@@ -17,11 +24,19 @@ function App() {
 
 
   return (
-    <>
-      <header className="bg-blue-800 border-b-2 border-blue-700">
-        <h1 className="text-2xl">My App</h1>
-      </header>
-    </>
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route 
+          path="/" 
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          } 
+        />
+      </Routes>
+    </Router>
   )
 }
 
