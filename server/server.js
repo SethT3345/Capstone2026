@@ -18,3 +18,5 @@ app.get("/api", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
+
+//it works
