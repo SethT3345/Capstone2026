@@ -1,13 +1,42 @@
 import React, { useState } from 'react';
+import CourseCard from './CourseCard';
 
 export default function Header() {
-    const [searchQuery, setSearchQuery] = useState('');
+  const [courseName, setCourseName] = useState('');
+  const [course, setCourse] = useState(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-    const handleSearch = (e) => {
-        e.preventDefault();
-        // Handle search logic here
-        console.log('Searching for:', searchQuery);
-    };
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setCourse(null);
+
+    try {
+      const response = await fetch('/api/search-course', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ courseName }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setCourse(data.course);
+      } else {
+        setError(data.message || data.error || 'Course not found');
+      }
+    } catch (err) {
+      setError('Failed to search for course. Please try again.');
+      console.error('Search error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
     return (
         <header className=" px-6 py-4">
@@ -30,12 +59,14 @@ export default function Header() {
                                 />
                             </svg>
                             <input
+                                id = "courseName"
                                 type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
+                                value={courseName}
+                                onChange={(e) => setCourseName(e.target.value)}
                                 placeholder="Search your courses here..."
                                 className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:bg-white transition duration-200"
                             />
+                            <input type='submit'></input>
                         </div>
                         
                         {/* Filter Button */}
@@ -60,6 +91,20 @@ export default function Header() {
                         </button>
                     </div>
                 </form>
+
+                {/* Display Course Result */}
+                {course && (
+                    <div className="mt-6">
+                        <CourseCard course={course} />
+                    </div>
+                )}
+
+                {/* Display Error */}
+                {error && (
+                    <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-red-600">{error}</p>
+                    </div>
+                )}
             </div>
         </header>
     );
