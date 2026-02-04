@@ -13,7 +13,7 @@ export default function Navbar() {
 
     return(
         <>
-        <nav className="fixed left-0 top-0 h-screen w-64 bg-white shadow-lg flex flex-col p-6">
+        <div className="left-side left-0 top-0 h-screen w-64 bg-white shadow-lg flex flex-col p-6">
             {/* Header */}
             <div className="mb-8">
                 <h1 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h1>
@@ -34,7 +34,7 @@ export default function Navbar() {
                 className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:cursor-pointer transition duration-200 mt-auto">
                 Logout
             </button>
-        </nav>
+        </div>
         </>
     )
 }
