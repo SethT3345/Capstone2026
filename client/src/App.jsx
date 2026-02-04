@@ -3,14 +3,16 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
-import Login from './components/Login.jsx'
-import Home from './components/Home.jsx'
-import Profile from './components/Profile.jsx'
+import Login from './pages/Login.jsx'
+import Home from './pages/Home.jsx'
+import Profile from './pages/Profile.jsx'
+import Courses from './pages/Courses.jsx'
+import NotLoggedIn from './pages/NotLoggedIn.jsx'
 
 // Protected Route component
 function ProtectedRoute({ children }) {
   const user = localStorage.getItem('user');
-  return user ? children : <Navigate to="/login" />;
+  return user ? children : <NotLoggedIn />;
 }
 
 function App() {
@@ -44,6 +46,16 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        <Route 
+          path="/courses" 
+          element={
+            <ProtectedRoute>
+              <Courses />
+            </ProtectedRoute>
+          } 
+        />
+        {/* Catch-all route for undefined paths */}
+        <Route path="*" element={<NotLoggedIn />} />
       </Routes>
     </Router>
   )
