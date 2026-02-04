@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Profile from './Profile.jsx';
-import Navbar from './Navbar.jsx';
+import Navbar from '../components/Navbar.jsx';
 
 export default function Home() {
     const navigate = useNavigate();
