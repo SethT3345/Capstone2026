@@ -1,6 +1,5 @@
 // server/server.js
 
-const DB_URL = "postgresql://postgrescapstone_b7f9_user:LWBbdDg3ziJwHTpfFsIHv3y6LYyJLM2g@dpg-d610oupr0fns73cgia7g-a/postgrescapstone_b7f9"
 const express = require("express");
 const path = require("path");
 const { Pool } = require("pg");
