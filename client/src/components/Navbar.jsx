@@ -12,25 +12,33 @@ export default function Navbar() {
 
     return(
         <>
-        <div className="left-side left-0 top-0 h-screen w-64 bg-white shadow-lg flex flex-col p-6">
+        <div className="left-side left-0 top-0 h-screen w-64 bg-white shadow-xl flex flex-col p-6">
             {/* Header */}
             <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h1>
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">Logo</h1>
             </div>
             
             {/* Navigation Items */}
             <div className="flex flex-col space-y-4">
                 <h6
-                    className="text-lg font-semibold text-gray-800 cursor-pointer hover:text-blue-600 hover:bg-gray-100 p-3 rounded-lg transition duration-200"
+                    className="text-lg font-normal text-gray-800 cursor-pointer hover:text-purple-600 hover:bg-gray-100 p-3 rounded-lg transition duration-200"
                     onClick={() => navigate('/profile')}>
                     Profile
+                </h6>
+            </div>
+
+            <div>
+                <h6
+                    className="text-lg font-normal text-gray-800 cursor-pointer hover:text-purple-600 hover:bg-gray-100 p-3 rounded-lg transition duration-200"
+                    onClick={() => navigate('/courses')}>
+                    Courses
                 </h6>
             </div>
             
             {/* Logout Button at Bottom */}
             <button 
                 onClick={handleLogout} 
-                className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:cursor-pointer transition duration-200 mt-auto">
+                className="w-full px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 hover:cursor-pointer transition duration-200 mt-auto">
                 Logout
             </button>
         </div>

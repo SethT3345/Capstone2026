@@ -6,6 +6,7 @@ import './App.css'
 import Login from './pages/Login.jsx'
 import Home from './pages/Home.jsx'
 import Profile from './pages/Profile.jsx'
+import Courses from './pages/Courses.jsx'
 import NotLoggedIn from './pages/NotLoggedIn.jsx'
 
 // Protected Route component
@@ -42,6 +43,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/courses" 
+          element={
+            <ProtectedRoute>
+              <Courses />
             </ProtectedRoute>
           } 
         />

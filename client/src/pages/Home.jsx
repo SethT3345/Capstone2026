@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Profile from './Profile.jsx';
 import Navbar from '../components/Navbar.jsx';
+import Header from '../components/Header.jsx';
 
 export default function Home() {
     const navigate = useNavigate();
@@ -15,15 +16,16 @@ export default function Home() {
      <>
         <div className='flex'>
         <Navbar />
-        <div className="right-side flex-1 min-h-screen bg-gray-50">
+        <div className="right-side flex-1 min-h-screen bg-gray-100">
+            {/* Header */}
+            <Header />
+            
             {/* Main Content */}
             <main className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-                <div className="bg-white rounded-lg shadow p-6">
-                    <h2 className="text-2xl font-semibold text-gray-800 mb-4">Main Page</h2>
-                    <p className="text-gray-600">
-                        You've successfully logged in! This is your main page.
-                    </p>
-                </div>
+                <h2 className="text-2xl font-semibold text-gray-800 mb-4">Main Page</h2>
+                <p className="text-gray-600">
+                    You've successfully logged in! This is your main page.
+                </p>
             </main>
         </div>
         </div>
