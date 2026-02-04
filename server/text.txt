@@ -1,0 +1,7 @@
+Course ID VARCHAR(255) NOT NULL,
+Course Title VARCHAR(255) NOT NULL,
+Course Description VARCHAR(255) NOT NULL,
+Classroom Number VARCHAR(255) NOT NULL,
+Capacity VARCHAR(255) NOT NULL,
+Credit Hours VARCHAR(255) NOT NULL,
+Tuition Cost
