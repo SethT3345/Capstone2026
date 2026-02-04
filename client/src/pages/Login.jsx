@@ -81,7 +81,7 @@ export default function Login() {
                                 Remember me
                             </label>
                         </div>
-                        <a href="#" className="text-sm text-blue-600 hover:text-blue-800 transition duration-200">
+                        <a href="#" className="text-sm text-purple-600 hover:text-blue-800 transition duration-200">
                             Forgot password?
                         </a>
                     </div>
@@ -89,7 +89,7 @@ export default function Login() {
                     {/* Login Button */}
                     <button 
                         type="submit" 
-                        className="w-full bg-linear-to-r from-blue-600 to-indigo-600 text-white font-semibold py-3 rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-300 transition duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                        className="w-full bg-linear-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 rounded-lg hover:from-purple-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-300 transition duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
                     >
                         Sign In
                     </button>
