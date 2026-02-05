@@ -87,7 +87,7 @@ export default function Courses() {
                     />
                     
                     {/* Main Content */}
-                    <main className="pt-24 max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+                    <main className="pt-28 max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
                         {/* Search Results Section */}
                         {searchResults && (
                             <div className="mb-8">
