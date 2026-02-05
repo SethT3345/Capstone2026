@@ -16,14 +16,14 @@ export default function Header({ onSearch, searching, searchError }) {
     };
 
     return (
-        <header className="fixed top-0 right-0 left-64 bg-white z-10 px-6 py-4 shadow-sm">
+        <header className="fixed top-0 right-0 left-64 bg-gradient-to-r from-purple-50 via-white to-purple-50 z-10 px-8 py-6 shadow-sm">
             <div className="max-w-7xl mx-auto">
                 <form onSubmit={handleSearch} className="relative">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-stretch gap-3">
                         {/* Search Input with Icon */}
-                        <div className="relative flex-1 shadow-xl">
+                        <div className="relative flex-1">
                             <svg 
-                                className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" 
+                                className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-500" 
                                 fill="none" 
                                 viewBox="0 0 24 24" 
                                 stroke="currentColor"
@@ -40,7 +40,7 @@ export default function Header({ onSearch, searching, searchError }) {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Search your courses here..."
-                                className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:bg-white transition duration-200"
+                                className="w-full h-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:bg-white transition-all duration-200 text-gray-900 placeholder-gray-400"
                                 disabled={searching}
                             />
                         </div>
@@ -48,11 +48,11 @@ export default function Header({ onSearch, searching, searchError }) {
                         {/* Filter Button */}
                         <button
                             type="button"
-                            className="p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition duration-200"
+                            className="flex items-center justify-center px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200 shadow-sm hover:shadow-md"
                             aria-label="Filter"
                         >
                             <svg 
-                                className="h-5 w-5 text-gray-600" 
+                                className="h-5 w-5" 
                                 fill="none" 
                                 viewBox="0 0 24 24" 
                                 stroke="currentColor"
