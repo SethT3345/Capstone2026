@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from './Button.jsx';
 
 export default function CourseCard({ course }) {
     return (
@@ -52,15 +53,9 @@ export default function CourseCard({ course }) {
                 </div>
                 
                 {/* Action Button */}
-                <button 
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
-                    onClick={() => {
-                        // Add your click handler here
-                        console.log('Course clicked:', course);
-                    }}
-                >
+                <Button onClick={() => console.log('Course clicked:', course)}>
                     View Details
-                </button>
+                </Button>
             </div>
         </div>
     );

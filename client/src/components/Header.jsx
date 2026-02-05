@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
 
-export default function Header() {
+export default function Header({ onSearch, searching, searchError }) {
     const [searchQuery, setSearchQuery] = useState('');
 
-    const handleSearch = (e) => {
+    const handleSearch = async (e) => {
         e.preventDefault();
-        // Handle search logic here
-        console.log('Searching for:', searchQuery);
+        
+        // If onSearch prop is provided (from Courses page), use it
+        if (onSearch) {
+            onSearch(searchQuery);
+        } else {
+            // Fallback for when Header is used on other pages
+            console.log('Searching for:', searchQuery);
+        }
     };
 
     return (
@@ -35,6 +41,7 @@ export default function Header() {
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Search your courses here..."
                                 className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:bg-white transition duration-200"
+                                disabled={searching}
                             />
                         </div>
                         
@@ -60,6 +67,20 @@ export default function Header() {
                         </button>
                     </div>
                 </form>
+                
+                {/* Loading State */}
+                {searching && (
+                    <div className="mt-4 text-center text-gray-600">
+                        Searching...
+                    </div>
+                )}
+                
+                {/* Error Message */}
+                {searchError && (
+                    <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                        {searchError}
+                    </div>
+                )}
             </div>
         </header>
     );

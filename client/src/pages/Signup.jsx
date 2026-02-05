@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
-// Login Component
-export default function Login() {
+// Signup Component
+export default function Signup() {
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
     const navigate = useNavigate();
 
@@ -13,23 +15,40 @@ export default function Login() {
         e.preventDefault();
         setError("");
         
-        if (email && password) {
-            localStorage.setItem('user', JSON.stringify({ email }));
-            navigate('/');
-        } else {
-            setError("Please enter both email and password");
+        // Validation
+        if (!name || !email || !password || !confirmPassword) {
+            setError("Please fill in all fields");
+            return;
         }
+
+        if (password !== confirmPassword) {
+            setError("Passwords do not match");
+            return;
+        }
+
+        if (password.length < 6) {
+            setError("Password must be at least 6 characters long");
+            return;
+        }
+
+        // Store user data and navigate to home
+        localStorage.setItem('user', JSON.stringify({ 
+            email, 
+            name
+        }));
+        navigate('/');
     };
+
     return (
         <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
                 {/* Header */}
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
-                    <p className="text-gray-600">Please sign in to your account</p>
+                    <h1 className="text-3xl font-bold text-gray-800 mb-2">Create Account</h1>
+                    <p className="text-gray-600">Sign up to get started</p>
                 </div>
 
-                {/* Login Form */}
+                {/* Signup Form */}
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Error Message */}
                     {error && (
@@ -37,6 +56,22 @@ export default function Login() {
                             {error}
                         </div>
                     )}
+
+                    {/* Name Field */}
+                    <div>
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                            Name
+                        </label>
+                        <input 
+                            type="text" 
+                            id="name" 
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="John Doe" 
+                            required 
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200" 
+                        />
+                    </div>
                     
                     {/* Email Input */}
                     <div>
@@ -50,7 +85,8 @@ export default function Login() {
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="you@example.com" 
                             required 
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200" />
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200" 
+                        />
                     </div>
 
                     {/* Password Input */}
@@ -63,35 +99,34 @@ export default function Login() {
                             id="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Enter your password" 
+                            placeholder="Create a password" 
                             required 
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200" 
                         />
                     </div>
 
-                    {/* Remember Me & Forgot Password */}
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                            <input 
-                                type="checkbox" 
-                                id="remember" 
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                            />
-                            <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
-                                Remember me
-                            </label>
-                        </div>
-                        <a href="#" className="text-sm text-purple-600 hover:text-blue-800 transition duration-200">
-                            Forgot password?
-                        </a>
+                    {/* Confirm Password Input */}
+                    <div>
+                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                            Confirm Password
+                        </label>
+                        <input 
+                            type="password" 
+                            id="confirmPassword"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Confirm your password" 
+                            required 
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200" 
+                        />
                     </div>
 
-                    {/* Login Button */}
+                    {/* Sign Up Button */}
                     <button 
                         type="submit" 
                         className="w-full bg-linear-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 rounded-lg hover:from-purple-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-300 transition duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
                     >
-                        Sign In
+                        Create Account
                     </button>
                 </form>
 
@@ -102,12 +137,12 @@ export default function Login() {
                     <div className="flex-1 border-t border-gray-300"></div>
                 </div>
 
-                {/* Sign Up Link */}
+                {/* Login Link */}
                 <div className="mt-6 text-center">
                     <p className="text-sm text-gray-600">
-                        Don't have an account?{' '}
-                        <Link to="/signup" className="text-blue-600 font-semibold hover:text-blue-800 transition duration-200">
-                            Sign up
+                        Already have an account?{' '}
+                        <Link to="/login" className="text-blue-600 font-semibold hover:text-blue-800 transition duration-200">
+                            Sign in
                         </Link>
                     </p>
                 </div>
