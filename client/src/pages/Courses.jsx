@@ -78,7 +78,7 @@ export default function Courses() {
         <>
             <div className='flex'>
                 <Navbar />
-                <div className="right-side flex-1 min-h-screen bg-gray-100">
+                <div className="right-side flex-1 min-h-screen bg-gray-100 ml-64">
                     {/* Header */}
                     <Header 
                         onSearch={handleSearch} 
@@ -87,7 +87,7 @@ export default function Courses() {
                     />
                     
                     {/* Main Content */}
-                    <main className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+                    <main className="pt-24 max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
                         {/* Search Results Section */}
                         {searchResults && (
                             <div className="mb-8">
@@ -106,10 +106,11 @@ export default function Courses() {
                                     <CourseCard 
                                         key={searchResults.course_id || searchResults.id}
                                         course={{
-                                            id: searchResults.course_id || searchResults.id,
-                                            title: searchResults.course_title,
+                                            course_id: searchResults.course_id || searchResults.id,
+                                            course_title: searchResults.course_title,
+                                            course_description: searchResults.course_description || searchResults.description,
+                                            classroom_number: searchResults.classroom_number,
                                             instructor: searchResults.instructor,
-                                            description: searchResults.description,
                                             capacity: searchResults.capacity,
                                             duration: searchResults.duration,
                                             level: searchResults.level,

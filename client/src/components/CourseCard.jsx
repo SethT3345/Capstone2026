@@ -1,7 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Button from './Button.jsx';
+import CourseModal from './CourseModal.jsx';
 
 export default function CourseCard({ course }) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleOpenModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+    };
+
     return (
         <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
             {/* Course Image */}
@@ -10,16 +21,19 @@ export default function CourseCard({ course }) {
                     <img 
                         src={course.image} 
                         alt={course.title} 
-                        className="w-full h-full object-cover"
-                    />
+                        className="w-full h-full object-cover"/>
                 </div>
-            )}
+            )}  
             
             {/* Course Content */}
             <div className="p-6">
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                    {course.title || 'Untitled Course'}
+                    {course.course_title || course.title || 'Untitled Course'}
                 </h3>
+                
+                <p className="text-xs text-gray-500 mb-3">
+                    {course.course_id || course.id}
+                </p>
                 
                 {course.instructor && (
                     <p className="text-sm text-gray-600 mb-3">
@@ -27,14 +41,19 @@ export default function CourseCard({ course }) {
                     </p>
                 )}
                 
-                {course.description && (
+                {(course.course_description || course.description) && (
                     <p className="text-gray-700 mb-4 line-clamp-3">
-                        {course.description}
+                        {course.course_description || course.description}
                     </p>
                 )}
                 
                 {/* Course Details */}
                 <div className="flex flex-wrap gap-2 mb-4">
+                    {course.classroom_number && (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">
+                            📍 {course.classroom_number}
+                        </span>
+                    )}
                     {course.duration && (
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
                             {course.duration}
@@ -53,10 +72,18 @@ export default function CourseCard({ course }) {
                 </div>
                 
                 {/* Action Button */}
-                <Button onClick={() => console.log('Course clicked:', course)}>
+                <Button onClick={handleOpenModal}>
                     View Details
                 </Button>
             </div>
+
+            {/* Modal */}
+            {isModalOpen && (
+                <CourseModal 
+                    course={course} 
+                    onClose={handleCloseModal}
+                />
+            )}
         </div>
     );
 }
