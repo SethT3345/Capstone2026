@@ -3,67 +3,63 @@ import React from 'react';
 export default function CourseCard({ course }) {
     return (
         <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+            {/* Course Image */}
+            {course.image && (
+                <div className="h-48 bg-gray-200 overflow-hidden">
+                    <img 
+                        src={course.image} 
+                        alt={course.title} 
+                        className="w-full h-full object-cover"
+                    />
+                </div>
+            )}
             
             {/* Course Content */}
             <div className="p-6">
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                    {course.course_title || 'Untitled Course'}
+                    {course.title || 'Untitled Course'}
                 </h3>
                 
-                {/* Course Details Grid */}
-                <div className="space-y-3 mb-4">
-                    {course.instructor && (
-                        <div className="flex items-center">
-                            <span className="text-sm font-medium text-gray-600 w-24">Instructor:</span>
-                            <span className="text-sm text-gray-800">{course.instructor}</span>
-                        </div>
+                {course.instructor && (
+                    <p className="text-sm text-gray-600 mb-3">
+                        Instructor: {course.instructor}
+                    </p>
+                )}
+                
+                {course.description && (
+                    <p className="text-gray-700 mb-4 line-clamp-3">
+                        {course.description}
+                    </p>
+                )}
+                
+                {/* Course Details */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                    {course.duration && (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                            {course.duration}
+                        </span>
                     )}
-                    
-                    {course.capacity !== undefined && (
-                        <div className="flex items-center">
-                            <span className="text-sm font-medium text-gray-600 w-24">Capacity:</span>
-                            <span className="text-sm text-gray-800">{course.capacity} students</span>
-                        </div>
+                    {course.level && (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                            {course.level}
+                        </span>
                     )}
-                    
-                    {course.time && (
-                        <div className="flex items-center">
-                            <span className="text-sm font-medium text-gray-600 w-24">Time:</span>
-                            <span className="text-sm text-gray-800">{course.time}</span>
-                        </div>
-                    )}
-                    
-                    {course.location && (
-                        <div className="flex items-center">
-                            <span className="text-sm font-medium text-gray-600 w-24">Location:</span>
-                            <span className="text-sm text-gray-800">{course.location}</span>
-                        </div>
-                    )}
-
-                    {course.course_code && (
-                        <div className="flex items-center">
-                            <span className="text-sm font-medium text-gray-600 w-24">Code:</span>
-                            <span className="text-sm text-gray-800">{course.course_code}</span>
-                        </div>
-                    )}
-
-                    {course.credits && (
-                        <div className="flex items-center">
-                            <span className="text-sm font-medium text-gray-600 w-24">Credits:</span>
-                            <span className="text-sm text-gray-800">{course.credits}</span>
-                        </div>
+                    {course.price !== undefined && (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800">
+                            ${course.price}
+                        </span>
                     )}
                 </div>
                 
                 {/* Action Button */}
                 <button 
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
                     onClick={() => {
-                        console.log('Enroll in course:', course);
-                        // Add enrollment logic here
+                        // Add your click handler here
+                        console.log('Course clicked:', course);
                     }}
                 >
-                    Enroll Now
+                    View Details
                 </button>
             </div>
         </div>
