@@ -106,10 +106,11 @@ export default function Courses() {
                                     <CourseCard 
                                         key={searchResults.course_id || searchResults.id}
                                         course={{
-                                            id: searchResults.course_id || searchResults.id,
-                                            title: searchResults.course_title,
+                                            course_id: searchResults.course_id || searchResults.id,
+                                            course_title: searchResults.course_title,
+                                            course_description: searchResults.course_description || searchResults.description,
+                                            classroom_number: searchResults.classroom_number,
                                             instructor: searchResults.instructor,
-                                            description: searchResults.description,
                                             capacity: searchResults.capacity,
                                             duration: searchResults.duration,
                                             level: searchResults.level,
