@@ -78,7 +78,7 @@ export default function Courses() {
         <>
             <div className='flex'>
                 <Navbar />
-                <div className="right-side flex-1 min-h-screen bg-gray-100">
+                <div className="right-side flex-1 min-h-screen bg-gray-100 ml-64">
                     {/* Header */}
                     <Header 
                         onSearch={handleSearch} 
