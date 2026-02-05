@@ -35,6 +35,21 @@ app.get("/api", (req, res) => {
   res.json({ message: "Hello from server!" });
 });
 
+// Get all courses
+app.get("/api/courses", async (req, res) => {
+  try {
+    console.log('Fetching all courses...');
+    const query = "SELECT * FROM classes WHERE capacity > 0 ORDER BY course_title";
+    const result = await pool.query(query);
+    
+    console.log(`Found ${result.rows.length} courses`);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Database error:", error.message);
+    res.status(500).json({ error: "Failed to fetch courses", details: error.message });
+  }
+});
+
 // Search for a course by name
 app.post("/api/search-course", async (req, res) => {
   try {
