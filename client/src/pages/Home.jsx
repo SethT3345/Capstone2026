@@ -21,7 +21,7 @@ export default function Home() {
             <Header />
             
             {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+            <main className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-24">
                 <h2 className="text-2xl font-semibold text-gray-800 mb-4">Main Page</h2>
                 <p className="text-gray-600">
                     You've successfully logged in! This is your main page.
