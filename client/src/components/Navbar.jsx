@@ -12,7 +12,7 @@ export default function Navbar() {
 
     return(
         <>
-        <div className="left-side left-0 top-0 h-screen w-64 bg-white shadow-xl flex flex-col p-6">
+        <div className="fixed left-0 top-0 h-screen w-64 bg-white shadow-xl flex flex-col p-6">
             {/* Header */}
             <div className="mb-8">
                 <h1 className="text-2xl font-bold text-gray-900 mb-6">Logo</h1>

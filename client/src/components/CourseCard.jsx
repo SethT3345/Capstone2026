@@ -21,10 +21,9 @@ export default function CourseCard({ course }) {
                     <img 
                         src={course.image} 
                         alt={course.title} 
-                        className="w-full h-full object-cover"
-                    />
+                        className="w-full h-full object-cover"/>
                 </div>
-            )}
+            )}  
             
             {/* Course Content */}
             <div className="p-6">
