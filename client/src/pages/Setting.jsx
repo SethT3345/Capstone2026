@@ -1,16 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import DarkModeToggle from '../components/DarkModeToggle';
 
 export default function Settings() {
     const navigate = useNavigate();
-    const { darkMode, toggleDarkMode } = useTheme();
-
-    const handleSaveSettings = () => {
-        // Save to localStorage (backend will use API)
-        alert('Settings saved successfully!');
-    };
+    const { darkMode } = useTheme();
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8">
@@ -32,7 +27,7 @@ export default function Settings() {
                         Appearance
                     </h2>
                     
-                    <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-between py-3">
                         <div>
                             <h3 className="font-medium text-gray-800 dark:text-white">Dark Mode</h3>
                             <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -40,30 +35,6 @@ export default function Settings() {
                             </p>
                         </div>
                         <DarkModeToggle />
-                    </div>
-
-                    <div className="flex items-center justify-between py-3">
-                        <div>
-                            <h3 className="font-medium text-gray-800 dark:text-white">Theme Preference</h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Choose your preferred color scheme
-                            </p>
-                        </div>
-                        <select 
-                            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            value={darkMode ? 'dark' : 'light'}
-                            onChange={(e) => {
-                                if (e.target.value === 'dark' && !darkMode) {
-                                    toggleDarkMode();
-                                } else if (e.target.value === 'light' && darkMode) {
-                                    toggleDarkMode();
-                                }
-                            }}
-                        >
-                            <option value="light">Light</option>
-                            <option value="dark">Dark</option>
-                            <option value="system">System Default</option>
-                        </select>
                     </div>
                 </div>
 
@@ -102,22 +73,6 @@ export default function Settings() {
                             </svg>
                         </button>
                     </div>
-                </div>
-
-                {/* Save Button */}
-                <div className="flex gap-3">
-                    <button
-                        onClick={handleSaveSettings}
-                        className="flex-1 bg-blue-600 dark:bg-blue-700 text-white px-6 py-3 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors font-medium"
-                    >
-                        Save Settings
-                    </button>
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="px-6 py-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors font-medium"
-                    >
-                        Cancel
-                    </button>
                 </div>
             </div>
         </div>

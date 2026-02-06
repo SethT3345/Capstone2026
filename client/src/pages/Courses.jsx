@@ -78,7 +78,7 @@ export default function Courses() {
         <>
             <div className='flex'>
                 <Navbar />
-                <div className="right-side flex-1 min-h-screen bg-gray-100 ml-64">
+                <div className="right-side flex-1 min-h-screen bg-gray-100 dark:bg-gray-900 ml-64">
                     {/* Header */}
                     <Header 
                         onSearch={handleSearch} 
@@ -92,12 +92,12 @@ export default function Courses() {
                         {searchResults && (
                             <div className="mb-8">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h2 className="text-2xl font-bold text-gray-800">
+                                    <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
                                         Search Results
                                     </h2>
                                     <button
                                         onClick={() => setSearchResults(null)}
-                                        className="text-sm text-gray-600 hover:text-gray-800"
+                                        className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white"
                                     >
                                         Clear Search
                                     </button>
@@ -125,10 +125,10 @@ export default function Courses() {
                         {!searchResults && (
                             <>
                                 <div className="mb-6">
-                                    <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                                    <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
                                         Available Courses
                                     </h2>
-                                    <p className="text-gray-600">
+                                    <p className="text-gray-600 dark:text-gray-400">
                                         Browse through our collection of courses
                                     </p>
                                 </div>
@@ -136,13 +136,13 @@ export default function Courses() {
                                 {/* Loading State */}
                                 {loading && (
                                     <div className="flex justify-center items-center py-12">
-                                        <div className="text-gray-600">Loading courses...</div>
+                                        <div className="text-gray-600 dark:text-gray-400">Loading courses...</div>
                                     </div>
                                 )}
 
                                 {/* Error State */}
                                 {error && (
-                                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+                                    <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-400 px-4 py-3 rounded-md">
                                         <p>Error: {error}</p>
                                     </div>
                                 )}
@@ -162,7 +162,7 @@ export default function Courses() {
                                 {/* Empty State */}
                                 {!loading && !error && courses.length === 0 && (
                                     <div className="text-center py-12">
-                                        <p className="text-gray-600 text-lg">
+                                        <p className="text-gray-600 dark:text-gray-400 text-lg">
                                             No courses available at the moment.
                                         </p>
                                     </div>

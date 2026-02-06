@@ -16,14 +16,14 @@ export default function Header({ onSearch, searching, searchError }) {
     };
 
     return (
-        <header className="fixed top-0 right-0 left-64 bg-gradient-to-r from-purple-50 via-white to-purple-50 z-10 px-8 py-6 shadow-sm">
+        <header className="fixed top-0 right-0 left-64 bg-gradient-to-r from-purple-50 via-white to-purple-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 z-10 px-8 py-6 shadow-sm">
             <div className="max-w-7xl mx-auto">
                 <form onSubmit={handleSearch} className="relative">
                     <div className="flex items-stretch gap-3">
                         {/* Search Input with Icon */}
                         <div className="relative flex-1">
                             <svg 
-                                className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-500" 
+                                className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-500 dark:text-purple-400" 
                                 fill="none" 
                                 viewBox="0 0 24 24" 
                                 stroke="currentColor"
@@ -40,7 +40,7 @@ export default function Header({ onSearch, searching, searchError }) {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Search your courses here..."
-                                className="w-full h-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:bg-white transition-all duration-200 text-gray-900 placeholder-gray-400"
+                                className="w-full h-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:bg-white dark:focus:bg-gray-600 transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                                 disabled={searching}
                             />
                         </div>
@@ -48,7 +48,7 @@ export default function Header({ onSearch, searching, searchError }) {
                         {/* Filter Button */}
                         <button
                             type="button"
-                            className="flex items-center justify-center px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200 shadow-sm hover:shadow-md"
+                            className="flex items-center justify-center px-4 py-3 bg-purple-600 dark:bg-purple-700 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-purple-600 transition-all duration-200 shadow-sm hover:shadow-md"
                             aria-label="Filter"
                         >
                             <svg 
@@ -70,14 +70,14 @@ export default function Header({ onSearch, searching, searchError }) {
                 
                 {/* Loading State */}
                 {searching && (
-                    <div className="mt-4 text-center text-gray-600">
+                    <div className="mt-4 text-center text-gray-600 dark:text-gray-400">
                         Searching...
                     </div>
                 )}
                 
                 {/* Error Message */}
                 {searchError && (
-                    <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                    <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg text-red-700 dark:text-red-400">
                         {searchError}
                     </div>
                 )}
