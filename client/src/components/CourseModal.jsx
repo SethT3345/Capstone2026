@@ -87,6 +87,24 @@ export default function CourseModal({ course, onClose, onOpen }) {
                         </div>
                     )}
 
+                    {course.credit_hours !== undefined && (
+                        <div>
+                            <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                                Credit Hours
+                            </h3>
+                            <p className="text-gray-700">{course.credit_hours}</p>
+                        </div>
+                    )}
+
+                    {course.tuition_cost !== undefined && (
+                        <div>
+                            <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                                Tuition Cost
+                            </h3>
+                            <p className="text-gray-700">${course.tuition_cost}</p>
+                        </div>
+                    )}
+
                     {course.level && (
                         <div>
                             <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">
