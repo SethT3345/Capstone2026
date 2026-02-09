@@ -45,7 +45,7 @@ export default function Navbar() {
                     className="text-base font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-gray-800 p-3 rounded-xl transition duration-200 flex items-center gap-3"
                     onClick={() => navigate('/admin/verification')}>
                     <span className="text-purple-600 dark:text-purple-400">🔒</span>
-                    Admin Verification
+                    Admin
                 </h6>
             </div>
 
