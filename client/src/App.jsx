@@ -10,12 +10,17 @@ import Profile from './pages/Profile.jsx'
 import Courses from './pages/Courses.jsx'
 import Settings from './pages/Setting.jsx'
 import NotLoggedIn from './pages/NotLoggedIn.jsx'
+import AdminRoute from './routes/AdminRoute';
+import AdminPage from './pages/AdminPage';
+import AdminVerification from './pages/AdminVerification.jsx';
 
 // Protected Route component
 function ProtectedRoute({ children }) {
   const user = localStorage.getItem('user')
   return user ? children : <NotLoggedIn />;
 }
+
+// (Use the imported AdminRoute from ./routes/AdminRoute)
 
 function App() {
   const [count, setCount] = useState(0);
@@ -65,6 +70,21 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        <Route 
+          path="/admin/verification" 
+          element={
+            <ProtectedRoute>
+              <AdminVerification />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="/admin" element={
+          <ProtectedRoute>
+            <AdminRoute>
+              <AdminPage />
+            </AdminRoute>
+          </ProtectedRoute>
+        } />
         {/* Catch-all route for undefined paths */}
         <Route path="*" element={<NotLoggedIn />} />
       </Routes>
