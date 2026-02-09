@@ -8,7 +8,24 @@ export default function Home() {
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        localStorage.removeItem('user');
+
+        
+        const rememberMeEnabled = localStorage.getItem('remember-me');
+        
+        console.log('Remember me value:', rememberMeEnabled); // Debug log
+        
+        // Always remove user from sessionStorage
+        sessionStorage.removeItem('user');
+        
+        // Only remove from localStorage if remember me is enabled
+        if (rememberMeEnabled) {
+            console.log('Keeping user data - remember me is enabled');
+            // Keep the user data in localStorage
+        } else {
+            console.log('Removing user data - remember me is not enabled');
+            localStorage.removeItem('user');
+        }
+        
         navigate('/login');
     };
 

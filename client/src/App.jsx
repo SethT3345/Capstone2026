@@ -13,7 +13,7 @@ import NotLoggedIn from './pages/NotLoggedIn.jsx'
 
 // Protected Route component
 function ProtectedRoute({ children }) {
-  const user = localStorage.getItem('user');
+  const user = localStorage.getItem('user')
   return user ? children : <NotLoggedIn />;
 }
 

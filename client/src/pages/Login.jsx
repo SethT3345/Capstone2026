@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
 // Login Component
@@ -6,18 +6,83 @@ export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
     const navigate = useNavigate();
+
+    // This runs when the component loads
+    useEffect(() => {
+        // Check if remember-me is enabled
+        const rememberMeEnabled = localStorage.getItem('remember-me') === 'true';
+        
+        if (rememberMeEnabled) {
+            // Get saved user data
+            const savedUser = localStorage.getItem('user');
+            
+            if (savedUser) {
+                const userData = JSON.parse(savedUser);
+                setEmail(userData.email || '');
+                setPassword(userData.password || '');
+                setRememberMe(true);
+            }
+        }
+    }, []); 
 
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
         
-        if (email && password) {
-            localStorage.setItem('user', JSON.stringify({ email }));
-            navigate('/');
-        } else {
+        if (!email || !password) {
             setError("Please enter both email and password");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            // Call the login API
+            const response = await fetch('/api/loginUser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                const userData = { 
+                    id: data.user.id,
+                    email: data.user.username,
+                    password: data.user.password,
+                    createdAt: data.user.created_at
+                    
+                
+                };
+                
+                localStorage.setItem('user', JSON.stringify(userData));
+
+                // Store in localStorage or sessionStorage based on remember me
+                if (rememberMe) {
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    localStorage.setItem('remember-me', 'true');
+                } else {
+                    localStorage.removeItem('remember-me');
+                }
+                
+                // Navigate to home
+                navigate('/');
+            } else {
+                // Show error message from server
+                setError(data.error || 'Login failed');
+            }
+        } catch (err) {
+            console.error('Login error:', err);
+            setError('Network error. Please make sure the server is running.');
+        } finally {
+            setLoading(false);
         }
     };
     return (
@@ -74,7 +139,9 @@ export default function Login() {
                         <div className="flex items-center">
                             <input 
                                 type="checkbox" 
-                                id="remember" 
+                                id="remember"
+                                checked={rememberMe}
+                                onChange={(e) => setRememberMe(e.target.checked)}
                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                             />
                             <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
@@ -88,10 +155,11 @@ export default function Login() {
 
                     {/* Login Button */}
                     <button 
-                        type="submit" 
-                        className="w-full bg-linear-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 rounded-lg hover:from-purple-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-300 transition duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-linear-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 rounded-lg hover:from-purple-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-300 transition duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Sign In
+                        {loading ? 'Signing In...' : 'Sign In'}
                     </button>
                 </form>
 
