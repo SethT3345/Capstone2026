@@ -3,10 +3,53 @@ import { useState } from 'react';
 
 export default function CourseModal({ course, onClose, onOpen }) {
     const [enrolled, setEnrolled] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
-    const handleEnroll = () => {
-        // Logic to enroll the user in the course
-        setEnrolled(true);
+    const handleEnroll = async () => {
+        setLoading(true);
+        setError("");
+
+        try {
+            // Get user from localStorage
+            const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+            if (!userStr) {
+                setError("Please login to enroll");
+                setLoading(false);
+                return;
+            }
+
+            const user = JSON.parse(userStr);
+            const user_id = user.id;
+            const course_id = course.id || course.course_id;
+
+            // Call the enroll API
+            const response = await fetch('/api/enroll', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user_id, course_id }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Success - update localStorage with new user data
+                const storageType = localStorage.getItem('user') ? localStorage : sessionStorage;
+                storageType.setItem('user', JSON.stringify(data.user));
+                
+                setEnrolled(true);
+            } else {
+                // Error from server
+                setError(data.error || 'Enrollment failed');
+            }
+        } catch (err) {
+            console.error('Enrollment error:', err);
+            setError('Network error. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -126,6 +169,13 @@ export default function CourseModal({ course, onClose, onOpen }) {
 
                 {/* Action Buttons */}
                 <div className="mt-6 pt-4 border-t border-gray-200 flex gap-3">
+                    {/* Error Message */}
+                    {error && (
+                        <div className="w-full bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
+                            {error}
+                        </div>
+                    )}
+                    
                     {enrolled ? (
                         <div className="flex items-center text-green-600">
                             <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -136,9 +186,10 @@ export default function CourseModal({ course, onClose, onOpen }) {
                     ) : (
                         <button
                             onClick={handleEnroll}
-                            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                            disabled={loading}
+                            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Enroll Now
+                            {loading ? 'Enrolling...' : 'Enroll Now'}
                         </button>
                     )}
                     <button

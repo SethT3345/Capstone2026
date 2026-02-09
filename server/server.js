@@ -138,6 +138,93 @@ app.post("/api/createUser", async (req, res) => {
   }
 })
 
+app.post("/api/checkAdmin", async (req, res) => {
+  try {
+    console.log('Received check admin request:', req.body);
+    const admin = req.body.admin;
+    
+    // Validate inputs
+    if (!admin) {
+      return res.status(400).json({ error: "Admin code required" });
+    }
+    
+    const query = "SELECT * FROM admins WHERE id = $1";
+    const result = await pool.query(query, [admin]);
+
+    console.log('Query result:', result.rows);
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: "Invalid Admin Code" });
+    }
+    
+    // Send success response with admin data
+    res.status(200).json({ 
+      message: "Admin verified successfully", 
+      admin: result.rows[0] 
+    });
+
+  } catch (error) {
+    console.error("Error getting admin code:", error);
+    res.status(500).json({ error: "Failed to get admin code", details: error.message });
+  }
+})
+
+
+app.post("/api/enroll", async (req, res) => {
+  try {
+    console.log('Received enroll request:', req.body);
+    const { course_id, user_id } = req.body;
+    
+    // Validate inputs
+    if (!course_id || !user_id) {
+      return res.status(400).json({ error: "Course ID and User ID are required" });
+    }
+    
+    // Check if course exists and has capacity
+    const checkQuery = "SELECT * FROM classes WHERE id = $1 AND capacity > 0";
+    const courseCheck = await pool.query(checkQuery, [course_id]);
+    
+    if (courseCheck.rows.length === 0) {
+      return res.status(404).json({ error: "Course not found or is full" });
+    }
+    
+    // Get current user's classes
+    const userQuery = "SELECT classes FROM users WHERE id = $1";
+    const userResult = await pool.query(userQuery, [user_id]);
+    
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    
+    const currentClasses = userResult.rows[0].classes || [];
+    
+    // Check if user is already enrolled
+    if (currentClasses.includes(course_id)) {
+      return res.status(400).json({ error: "Already enrolled in this course" });
+    }
+    
+    // Add course_id to the classes array
+    const updatedClasses = [...currentClasses, course_id];
+    const updateQuery = "UPDATE users SET classes = $1 WHERE id = $2 RETURNING *";
+    const result = await pool.query(updateQuery, [updatedClasses, user_id]);
+    
+    // Decrease course capacity
+    const capacityQuery = "UPDATE classes SET capacity = capacity - 1 WHERE id = $1";
+    await pool.query(capacityQuery, [course_id]);
+
+    console.log('Enrollment successful:', result.rows[0]);
+    
+    res.status(200).json({ 
+      message: "Successfully enrolled in course", 
+      user: result.rows[0] 
+    });
+
+  } catch (error) {
+    console.error("Error enrolling:", error);
+    res.status(500).json({ error: "Failed to enroll", details: error.message });
+  }
+})
+
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
