@@ -1,10 +1,17 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export default function AdminVerification() {
   const navigate = useNavigate()
   const [adminCode, setAdminCode] = useState('')
   const [message, setMessage] = useState('')
+
+  // If already verified, go straight to admin page
+  useEffect(() => {
+    if (localStorage.getItem('isAdmin') === 'true') {
+      navigate('/admin', { replace: true })
+    }
+  }, [navigate])
 
   const handleVerify = () => {
     const expected = 'admin123'

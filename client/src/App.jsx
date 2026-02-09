@@ -79,9 +79,11 @@ function App() {
           } 
         />
         <Route path="/admin" element={
-          <AdminRoute>
-            <AdminPage />
-          </AdminRoute>
+          <ProtectedRoute>
+            <AdminRoute>
+              <AdminPage />
+            </AdminRoute>
+          </ProtectedRoute>
         } />
         {/* Catch-all route for undefined paths */}
         <Route path="*" element={<NotLoggedIn />} />
