@@ -8,6 +8,7 @@ export default function Signup() {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     // Handle form submission
@@ -31,12 +32,38 @@ export default function Signup() {
             return;
         }
 
-        // Store user data and navigate to home
-        localStorage.setItem('user', JSON.stringify({ 
-            email, 
-            name
-        }));
-        navigate('/');
+        setLoading(true);
+
+        try {
+            // Call the API to create user
+            const response = await fetch('/api/createUser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Store user data in localStorage
+                localStorage.setItem('user', JSON.stringify({ 
+                    id: data.user.id,
+                    email: data.user.username,
+                    name
+                }));
+                // Navigate to home
+                navigate('/');
+            } else {
+                setError(data.error || 'Failed to create account');
+            }
+        } catch (err) {
+            console.error('Signup error:', err);
+            setError('Network error. Please make sure the server is running.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -123,10 +150,11 @@ export default function Signup() {
 
                     {/* Sign Up Button */}
                     <button 
-                        type="submit" 
-                        className="w-full bg-linear-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 rounded-lg hover:from-purple-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-300 transition duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-linear-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 rounded-lg hover:from-purple-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-300 transition duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Create Account
+                        {loading ? 'Creating Account...' : 'Create Account'}
                     </button>
                 </form>
 

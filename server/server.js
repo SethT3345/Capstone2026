@@ -64,6 +64,65 @@ app.post("/api/search-course", async (req, res) => {
   }
 });
 
+app.post('/api/loginUser', async (req, res) => {
+  try {
+    console.log('Received login request:', req.body);
+    const username = req.body.email;
+    const password = req.body.password;
+
+    // Validate inputs
+    if (!username || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    // Query to find user with matching username and password
+    const query = "SELECT * FROM users WHERE username = $1 AND password = $2";
+    const result = await pool.query(query, [username, password]);
+
+    console.log('Query result:', result.rows);
+
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+    res.status(200).json({ 
+      message: "Login successful", 
+      user: result.rows[0] 
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ error: "Internal server error", details: error.message });
+  }
+})
+
+app.post("/api/createUser", async (req, res) => {
+  try {
+    console.log('Received create user request:', req.body);
+    const id = Math.floor(10000 + Math.random() * 90000);
+    const username = req.body.email;
+    const password = req.body.password;
+    
+    // Validate inputs
+    if (!username || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+    
+    const query = 'INSERT INTO users (id, username, password, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW()) RETURNING *';
+
+    const result = await pool.query(query, [id, username, password]);
+    
+    console.log('User created:', result.rows[0]);
+    
+    res.status(201).json({ 
+      message: "User created successfully", 
+      user: result.rows[0] 
+    });
+  } catch (error) {
+    console.error("Error creating user:", error);
+    res.status(500).json({ error: "Failed to create user", details: error.message });
+  }
+})
+
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
