@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import DarkModeToggle from '../components/DarkModeToggle';
@@ -6,6 +7,27 @@ import DarkModeToggle from '../components/DarkModeToggle';
 export default function Settings() {
     const navigate = useNavigate();
     const { darkMode } = useTheme();
+
+    const [adminCode, setAdminCode] = useState('');
+    const [message, setMessage] = useState('');
+
+    const handleVerifyAdmin = (e) => {
+        e.preventDefault();
+        // Use env var if provided, fallback to a dev code (replace or remove for prod)
+        const expected = process.env.REACT_APP_ADMIN_CODE || 'admin123';
+        if (adminCode === expected) {
+            localStorage.setItem('isAdmin', 'true');
+            setMessage('Verified as admin.');
+            navigate('/admin');
+        } else {
+            setMessage('Invalid admin code.');
+        }
+    };
+
+    const revokeAdmin = () => {
+        localStorage.removeItem('isAdmin');
+        setMessage('Admin access revoked.');
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8">
@@ -38,6 +60,27 @@ export default function Settings() {
                     </div>
                 </div>
 
+
+                {/* Admin Verification */}
+                <div>
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+                        <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
+                            Admin Verification
+                        </h2>
+                        
+                        <div className="space-y-3">
+                            <button
+                                onClick={() => navigate('/admin/verification')}
+                                className="w-full px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-between"
+                            >
+                                <span>Manage Verification Requests</span>
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 {/* Account Actions */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
                     <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
