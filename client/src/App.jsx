@@ -11,8 +11,10 @@ import Courses from './pages/Courses.jsx'
 import Settings from './pages/Setting.jsx'
 import NotLoggedIn from './pages/NotLoggedIn.jsx'
 import AdminRoute from './routes/AdminRoute';
-import AdminPage from './pages/AdminPage';
-import AdminVerification from './pages/AdminVerification.jsx';
+import AdminPage from './pages/admin/AdminPage.jsx';
+import AdminVerification from './pages/admin/AdminVerification.jsx';
+import AdminUsers from './pages/admin/AdminUsers.jsx'
+import AdminCourses from './pages/admin/AdminCourses.jsx'
 
 // Protected Route component
 function ProtectedRoute({ children }) {
@@ -77,6 +79,26 @@ function App() {
               <AdminVerification />
             </ProtectedRoute>
           } 
+        />
+        <Route 
+          path="/admin/users"
+          element={
+            <ProtectedRoute>
+              <AdminRoute>
+                <AdminUsers />
+              </AdminRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route 
+          path="/admin/courses"
+          element={
+            <ProtectedRoute>
+              <AdminRoute>
+                <AdminCourses />
+              </AdminRoute>
+            </ProtectedRoute>
+          }
         />
         <Route path="/admin" element={
           <ProtectedRoute>
