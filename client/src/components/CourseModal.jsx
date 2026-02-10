@@ -168,10 +168,10 @@ export default function CourseModal({ course, onClose, onOpen }) {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="mt-6 pt-4 border-t border-gray-200 flex gap-3">
+                <div className="mt-6 pt-4 border-t border-gray-200 flex justify-end">
                     {/* Error Message */}
                     {error && (
-                        <div className="w-full bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
+                        <div className="flex-1 bg-red-50 border border-red-200 text-red-700 px-2 py-2 rounded-lg text-sm">
                             {error}
                         </div>
                     )}
