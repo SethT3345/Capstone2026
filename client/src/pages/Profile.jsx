@@ -1,11 +1,38 @@
-import react from 'react';
-import { useState } from 'react';
+import React from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar.jsx';
 import Header from '../components/Header.jsx';
 
 export default function Profile() {
-    const userString = localStorage.getItem('user');
+    const userString = localStorage.getItem('user') || sessionStorage.getItem('user');
     const user = userString ? JSON.parse(userString) : null;
+    const [numClasses, setNumClasses] = useState(0);
+
+    useEffect(() => {
+        // Fetch number of enrolled classes
+        const fetchClassCount = async () => {
+            if (!user || !user.id) return;
+
+            try {
+                const response = await fetch('/api/numOfClasses', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ user_id: user.id }),
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    setNumClasses(data.numClasses);
+                }
+            } catch (error) {
+                console.error('Error fetching class count:', error);
+            }
+        };
+
+        fetchClassCount();
+    }, []); // Empty dependency array - only run once on mount
 
     return(
         <>
@@ -30,7 +57,7 @@ export default function Profile() {
                                 {/* Profile Info */}
                                 <div className="flex-1">
                                     <h1 className="text-3xl font-bold text-white mb-2">
-                                        {user ? user.email.split('@')[0] : 'User'}
+                                        {user && user.username ? user.username.split('@')[0] : 'User'}
                                     </h1>
                                     <p className="text-purple-100 text-lg">Student Account</p>
                                 </div>
@@ -56,7 +83,7 @@ export default function Profile() {
                                     <div className="space-y-4">
                                         <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
                                             <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Email Address</p>
-                                            <p className="text-gray-900 dark:text-white font-medium">{user.email}</p>
+                                            <p className="text-gray-900 dark:text-white font-medium">{user.username || 'N/A'}</p>
                                         </div>
                                         <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
                                             <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Account Type</p>
@@ -86,7 +113,7 @@ export default function Profile() {
                                     <div className="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                                         <div>
                                             <p className="text-sm text-gray-600 dark:text-gray-400">Enrolled Courses</p>
-                                            <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">0</p>
+                                            <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{numClasses}</p>
                                         </div>
                                         <svg className="w-12 h-12 text-purple-300" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
