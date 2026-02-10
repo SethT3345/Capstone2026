@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function CourseModal({ course, onClose, onOpen }) {
     const [enrolled, setEnrolled] = useState(false);
@@ -38,8 +37,7 @@ export default function CourseModal({ course, onClose, onOpen }) {
                 // Success - update localStorage with new user data
                 const storageType = localStorage.getItem('user') ? localStorage : sessionStorage;
                 storageType.setItem('user', JSON.stringify(data.user));
-                
-                setEnrolled(true);
+                    setEnrolled(true);
             } else {
                 // Error from server
                 setError(data.error || 'Enrollment failed');
@@ -51,6 +49,75 @@ export default function CourseModal({ course, onClose, onOpen }) {
             setLoading(false);
         }
     };
+
+    const handleUnenroll = async () => {
+        setLoading(true);
+        setError("");
+
+        try {
+            const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+            if (!userStr) {
+                setError('Please login to unenroll');
+                setLoading(false);
+                return;
+            }
+
+            const user = JSON.parse(userStr);
+            const user_id = user.id;
+            const course_id = course.id || course.course_id;
+
+            const response = await fetch('/api/unenroll', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id, course_id }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                const storageType = localStorage.getItem('user') ? localStorage : sessionStorage;
+                storageType.setItem('user', JSON.stringify(data.user));
+                setEnrolled(false);
+            } else {
+                setError(data.error || 'Unenroll failed');
+            }
+        } catch (err) {
+            console.error('Unenroll error:', err);
+            setError('Network error. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        // Initialize enrolled state from stored user data when modal opens or course changes
+        const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+        if (!userStr) {
+            setEnrolled(false);
+            return;
+        }
+
+        try {
+            const user = JSON.parse(userStr);
+            const classes = user.classes || [];
+            let classesArray = [];
+            if (typeof classes === 'string') {
+                try {
+                    classesArray = JSON.parse(classes);
+                } catch (e) {
+                    classesArray = [];
+                }
+            } else if (Array.isArray(classes)) {
+                classesArray = classes;
+            }
+
+            const course_id = course.id || course.course_id;
+            // use loose equality to match string/number stored forms
+            const isEnrolled = classesArray.some((c) => c == course_id);
+            setEnrolled(isEnrolled);
+        } catch (e) {
+            setEnrolled(false);
+        }
+    }, [course]);
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -177,12 +244,13 @@ export default function CourseModal({ course, onClose, onOpen }) {
                     )}
                     
                     {enrolled ? (
-                        <div className="flex items-center text-green-600 dark:text-green-300">
-                            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
-                            <span className="font-medium">Enrolled in this course</span>
-                        </div>
+                        <button
+                            onClick={handleUnenroll}
+                            disabled={loading}
+                            className="bg-red-600 text-white px-5 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                        >
+                            {loading ? 'Processing...' : 'Unenroll'}
+                        </button>
                     ) : (
                         <button
                             onClick={handleEnroll}
