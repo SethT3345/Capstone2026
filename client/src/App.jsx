@@ -10,6 +10,7 @@ import Profile from './pages/Profile.jsx'
 import Courses from './pages/Courses.jsx'
 import Settings from './pages/Setting.jsx'
 import NotLoggedIn from './pages/NotLoggedIn.jsx'
+import MyLearning from './pages/MyLearning.jsx'
 import AdminRoute from './routes/AdminRoute';
 import AdminPage from './pages/admin/AdminPage.jsx';
 import AdminVerification from './pages/admin/AdminVerification.jsx';
@@ -55,6 +56,14 @@ function App() {
               <Profile />
             </ProtectedRoute>
           } 
+        />
+        <Route 
+          path="/my-learning"
+          element={
+            <ProtectedRoute>
+              <MyLearning />
+            </ProtectedRoute>
+          }
         />
         <Route 
           path="/courses" 
