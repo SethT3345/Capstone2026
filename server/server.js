@@ -204,9 +204,24 @@ app.post("/api/enroll", async (req, res) => {
     }
     
     // Add course_id to the classes array
-    const updatedClasses = [...currentClasses, course_id];
+    // Parse existing classes if stored as JSON string, or use empty array
+    let classesArray = [];
+    if (typeof currentClasses === 'string') {
+      try {
+        classesArray = JSON.parse(currentClasses);
+      } catch (e) {
+        classesArray = [];
+      }
+    } else if (Array.isArray(currentClasses)) {
+      classesArray = currentClasses;
+    }
+    
+    // Add new course_id
+    classesArray.push(course_id);
+    
+    // Store back as JSON string
     const updateQuery = "UPDATE users SET classes = $1 WHERE id = $2 RETURNING *";
-    const result = await pool.query(updateQuery, [updatedClasses, user_id]);
+    const result = await pool.query(updateQuery, [JSON.stringify(classesArray), user_id]);
     
     // Decrease course capacity
     const capacityQuery = "UPDATE classes SET capacity = capacity - 1 WHERE id = $1";
@@ -222,6 +237,51 @@ app.post("/api/enroll", async (req, res) => {
   } catch (error) {
     console.error("Error enrolling:", error);
     res.status(500).json({ error: "Failed to enroll", details: error.message });
+  }
+})
+
+//get how many classes a user has enrolled in
+app.post('/api/numOfClasses', async (req, res) => {
+  try {
+    const { user_id } = req.body;
+
+    // Validate input
+    if (!user_id) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    // Get user's classes and count them
+    // If classes is stored as JSON string, we need to parse it
+    const query = "SELECT classes FROM users WHERE id = $1";
+    const result = await pool.query(query, [user_id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const classes = result.rows[0].classes;
+    let numClasses = 0;
+
+    // Handle different storage formats
+    if (typeof classes === 'string') {
+      try {
+        const classesArray = JSON.parse(classes);
+        numClasses = classesArray.length;
+      } catch (e) {
+        numClasses = 0;
+      }
+    } else if (Array.isArray(classes)) {
+      numClasses = classes.length;
+    }
+
+    res.status(200).json({ 
+      numClasses: numClasses,
+      user_id: user_id
+    });
+
+  } catch (error) {
+    console.error("Error getting number of classes:", error);
+    res.status(500).json({ error: "Failed to get class count", details: error.message });
   }
 })
 

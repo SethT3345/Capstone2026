@@ -21,7 +21,7 @@ export default function Login() {
             
             if (savedUser) {
                 const userData = JSON.parse(savedUser);
-                setEmail(userData.email || '');
+                setEmail(userData.email || userData.username || '');
                 setPassword(userData.password || '');
                 setRememberMe(true);
             }
