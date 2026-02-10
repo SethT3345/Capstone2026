@@ -13,19 +13,42 @@ export default function AdminVerification() {
     }
   }, [navigate])
 
-  const handleVerify = () => {
-    const expected = 'admin123'
+  const handleVerify = async () => {
     const code = (adminCode || '').trim()
-    if (code === expected) {
-      localStorage.setItem('isAdmin', 'true')
-      setMessage('Verified as admin.')
-      // SPA navigation, with a fallback forced redirect
-      navigate('/admin', { replace: true })
-      setTimeout(() => {
-        if (window.location.pathname !== '/admin') window.location.href = '/admin'
-      }, 200)
-    } else {
-      setMessage('Invalid admin code.')
+    
+    if (!code) {
+      setMessage('Please enter an admin code.')
+      return
+    }
+
+    try {
+      const response = await fetch('/api/checkAdmin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ admin: code }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        // Successfully verified as admin
+        localStorage.setItem('isAdmin', 'true')
+        localStorage.setItem('adminData', JSON.stringify(data.admin))
+        setMessage('Verified as admin.')
+        // SPA navigation, with a fallback forced redirect
+        navigate('/admin', { replace: true })
+        setTimeout(() => {
+          if (window.location.pathname !== '/admin') window.location.href = '/admin'
+        }, 200)
+      } else {
+        // Invalid admin code
+        setMessage(data.error || 'Invalid admin code.')
+      }
+    } catch (error) {
+      console.error('Admin verification error:', error)
+      setMessage('Error verifying admin code. Please try again.')
     }
   }
 

@@ -8,7 +8,7 @@ export default function AdminCourses() {
   const [error, setError] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingCourse, setEditingCourse] = useState(null)
-  const [form, setForm] = useState({ code: '', title: '', instructor: '', seats: '' })
+  const [form, setForm] = useState({ code: '', title: '', description: '', classroomNumber: '', seats: '', creditHours: '', tuitionCost: '' })
 
   useEffect(() => {
     fetchCourses()
@@ -32,7 +32,7 @@ export default function AdminCourses() {
 
   function openCreate() {
     setEditingCourse(null)
-    setForm({ code: '', title: '', instructor: '', seats: '' })
+    setForm({ code: '', title: '', description: '', classroomNumber: '', seats: '', creditHours: '', tuitionCost: '' })
     setIsModalOpen(true)
   }
 
@@ -41,8 +41,11 @@ export default function AdminCourses() {
     setForm({
       code: course.course_code || course.code || '',
       title: course.course_title || course.title || '',
-      instructor: course.instructor || '',
-      seats: String(course.capacity || course.seats || '')
+      description: course.course_description || course.description || course.instructor || '',
+      classroomNumber: String(course.classroom_number || course.classroomNumber || ''),
+      seats: String(course.capacity || course.seats || ''),
+      creditHours: String(course.credit_hours || course.creditHours || ''),
+      tuitionCost: String(course.tuition_cost || course.tuitionCost || '')
     })
     setIsModalOpen(true)
   }
@@ -50,7 +53,7 @@ export default function AdminCourses() {
   function closeModal() {
     setIsModalOpen(false)
     setEditingCourse(null)
-    setForm({ code: '', title: '', instructor: '', seats: '' })
+    setForm({ code: '', title: '', description: '', classroomNumber: '', seats: '', creditHours: '', tuitionCost: '' })
   }
 
   function handleChange(e) {
@@ -58,21 +61,73 @@ export default function AdminCourses() {
     setForm(prev => ({ ...prev, [name]: value }))
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
-    const payload = { code: form.code.trim(), title: form.title.trim(), instructor: form.instructor.trim(), seats: Number(form.seats) || 0 }
-    if (editingCourse) {
-      setCourses(prev => prev.map(c => c.id === editingCourse ? { ...c, ...payload } : c))
-    } else {
-      const newCourse = { id: Date.now(), ...payload }
-      setCourses(prev => [newCourse, ...prev])
+    const payload = { 
+      code: form.code.trim(), 
+      title: form.title.trim(), 
+      description: form.description.trim(), 
+      classroomNumber: form.classroomNumber.trim(),
+      seats: Number(form.seats) || 0,
+      creditHours: Number(form.creditHours) || 0,
+      tuitionCost: Number(form.tuitionCost) || 0
     }
-    closeModal()
+    
+    if (editingCourse) {
+      // TODO: Update existing course via API
+      setCourses(prev => prev.map(c => c.id === editingCourse ? { ...c, ...payload } : c))
+      closeModal()
+    } else {
+      // Create new course via API
+      try {
+        const response = await fetch('/api/createClass', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        })
+
+        const data = await response.json()
+
+        if (response.ok) {
+          console.log('Class created successfully:', data)
+          // Refresh the courses list
+          await fetchCourses()
+          closeModal()
+        } else {
+          console.error('Error creating class:', data.error)
+          alert(data.error || 'Failed to create class')
+        }
+      } catch (error) {
+        console.error('Error creating class:', error)
+        alert('Failed to create class. Please try again.')
+      }
+    }
   }
 
-  function handleDelete(id) {
+  async function handleDelete(id) {
     if (!window.confirm('Delete this course?')) return
-    setCourses(prev => prev.filter(c => c.id !== id))
+    
+    try {
+      const response = await fetch(`/api/deleteClass/${id}`, {
+        method: 'DELETE',
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        console.log('Class deleted successfully:', data)
+        // Refresh the courses list
+        await fetchCourses()
+      } else {
+        console.error('Error deleting class:', data.error)
+        alert(data.error || 'Failed to delete class')
+      }
+    } catch (error) {
+      console.error('Error deleting class:', error)
+      alert('Failed to delete class. Please try again.')
+    }
   }
 
   return (
@@ -143,17 +198,26 @@ export default function AdminCourses() {
               <form onSubmit={handleSubmit} className="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md mx-4 p-6 z-10">
                 <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">{editingCourse ? 'Edit Course' : 'Create Course'}</h2>
 
-                <label className="block mb-2 text-sm text-gray-600 dark:text-gray-300">Code</label>
+                <label className="block mb-2 text-sm text-gray-600 dark:text-gray-300">Course_id</label>
                 <input name="code" value={form.code} onChange={handleChange} className="w-full px-3 py-2 mb-3 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100" required />
 
                 <label className="block mb-2 text-sm text-gray-600 dark:text-gray-300">Title</label>
                 <input name="title" value={form.title} onChange={handleChange} className="w-full px-3 py-2 mb-3 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100" required />
 
-                <label className="block mb-2 text-sm text-gray-600 dark:text-gray-300">Instructor</label>
-                <input name="instructor" value={form.instructor} onChange={handleChange} className="w-full px-3 py-2 mb-3 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
+                <label className="block mb-2 text-sm text-gray-600 dark:text-gray-300">Description</label>
+                <input name="description" value={form.description} onChange={handleChange} className="w-full px-3 py-2 mb-3 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
+
+                <label className="block mb-2 text-sm text-gray-600 dark:text-gray-300">Classroom Number</label>
+                <input name="classroomNumber" value={form.classroomNumber} onChange={handleChange} className="w-full px-3 py-2 mb-3 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100" placeholder="e.g., Room 101" />
 
                 <label className="block mb-2 text-sm text-gray-600 dark:text-gray-300">Seats</label>
-                <input name="seats" value={form.seats} onChange={handleChange} type="number" min="0" className="w-full px-3 py-2 mb-4 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
+                <input name="seats" value={form.seats} onChange={handleChange} type="number" min="0" className="w-full px-3 py-2 mb-3 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
+
+                <label className="block mb-2 text-sm text-gray-600 dark:text-gray-300">Credit Hours</label>
+                <input name="creditHours" value={form.creditHours} onChange={handleChange} type="number" min="0" step="0.5" className="w-full px-3 py-2 mb-3 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
+
+                <label className="block mb-2 text-sm text-gray-600 dark:text-gray-300">Tuition Cost</label>
+                <input name="tuitionCost" value={form.tuitionCost} onChange={handleChange} type="number" min="0" step="0.01" className="w-full px-3 py-2 mb-4 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100" placeholder="0.00" />
 
                 <div className="flex justify-end">
                   <button type="button" onClick={closeModal} className="mr-2 px-4 py-2 rounded border">Cancel</button>
