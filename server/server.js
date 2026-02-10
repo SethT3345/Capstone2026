@@ -285,6 +285,97 @@ app.post('/api/numOfClasses', async (req, res) => {
   }
 })
 
+app.post('/api/createClass', async (req, res) => {
+  try {
+    console.log('Received create class request:', req.body);
+    
+    const id = Math.floor(100 + Math.random() * 900);
+    const course_id = req.body.code
+    const course_title = req.body.title
+    const course_description = req.body.description
+    const classroom_number = req.body.classroomNumber
+    const capacity = req.body.seats
+    const credit_hours = req.body.creditHours
+    const tuition_cost = req.body.tuitionCost
+
+
+
+    
+    // Validate required fields
+    if (!course_id || !course_title) {
+      return res.status(400).json({ error: "Course ID and Title are required" });
+    }
+    
+    // Insert new class into database
+    const query = `
+      INSERT INTO classes (id, course_id, course_title, course_description, classroom_number, capacity, credit_hours, tuition_cost, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+      RETURNING *
+    `;
+    
+    const values = [
+      id,
+      course_id,
+      course_title,
+      course_description || '',
+      classroom_number || '',
+      capacity || 0,
+      credit_hours || 0,
+      tuition_cost || 0
+    ];
+    
+    const result = await pool.query(query, values);
+    
+    console.log('Class created successfully:', result.rows[0]);
+    
+    res.status(201).json({ 
+      message: "Class created successfully", 
+      class: result.rows[0] 
+    });
+    
+  } catch (error) {
+    console.error("Error creating class:", error);
+    res.status(500).json({ error: "Failed to create class", details: error.message });
+  }
+})
+
+app.delete('/api/deleteClass/:id', async (req, res) => {
+  try {
+    console.log('Received delete class request for ID:', req.params.id);
+    
+    const classId = req.params.id;
+    
+    // Validate input
+    if (!classId) {
+      return res.status(400).json({ error: "Class ID is required" });
+    }
+    
+    // Check if class exists
+    const checkQuery = "SELECT * FROM classes WHERE id = $1";
+    const checkResult = await pool.query(checkQuery, [classId]);
+    
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({ error: "Class not found" });
+    }
+    
+    // Delete the class
+    const deleteQuery = "DELETE FROM classes WHERE id = $1 RETURNING *";
+    const result = await pool.query(deleteQuery, [classId]);
+    
+    console.log('Class deleted successfully:', result.rows[0]);
+    
+    res.status(200).json({ 
+      message: "Class deleted successfully", 
+      class: result.rows[0] 
+    });
+    
+  } catch (error) {
+    console.error("Error deleting class:", error);
+    res.status(500).json({ error: "Failed to delete class", details: error.message });
+  }
+})
+
+
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
