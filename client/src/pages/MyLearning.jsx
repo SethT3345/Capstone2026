@@ -23,9 +23,9 @@ export default function MyLearning() {
                   placeholder="Search courses"
                   value={''}
                   onChange={() => {}}
-                  className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none"
+                  className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 focus:outline-none"
                 />
-                <select className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm">
+                <select className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-700 dark:text-white">
                   <option>Sort: Recent</option>
                   <option>Sort: Progress</option>
                 </select>

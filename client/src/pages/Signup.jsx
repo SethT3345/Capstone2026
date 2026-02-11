@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import Aurora from '../components/Aurora.jsx';
+import './Login.css';
 
 // Signup Component
 export default function Signup() {
@@ -67,19 +69,20 @@ export default function Signup() {
     };
 
     return (
-        <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+        <div className="relative min-h-screen flex items-center justify-center p-4 glass-outer">
+            <Aurora colorStops={["#3B82F6", "#8B5CF6", "#FFFFFF"]} />
+            <div className="relative z-10 glass-card w-full max-w-md">
                 {/* Header */}
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-800 mb-2">Create Account</h1>
-                    <p className="text-gray-600">Sign up to get started</p>
+                    <h1 className="text-3xl font-bold glass-title mb-2">Create Account</h1>
+                    <p className="text-sm text-gray-200">Sign up to get started</p>
                 </div>
 
                 {/* Signup Form */}
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6" noValidate onInvalid={(e) => e.preventDefault()}>
                     {/* Error Message */}
                     {error && (
-                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                        <div className="glass-error px-4 py-3 rounded-lg">
                             {error}
                         </div>
                     )}
@@ -96,7 +99,7 @@ export default function Signup() {
                             onChange={(e) => setName(e.target.value)}
                             placeholder="John Doe" 
                             required 
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200" 
+                            className="w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none transition duration-200 placeholder:text-gray-300 glass-input" 
                         />
                     </div>
                     
@@ -112,7 +115,7 @@ export default function Signup() {
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="you@example.com" 
                             required 
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200" 
+                            className="w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none transition duration-200 placeholder:text-gray-300 glass-input" 
                         />
                     </div>
 
@@ -128,7 +131,7 @@ export default function Signup() {
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Create a password" 
                             required 
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200" 
+                            className="w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none transition duration-200 glass-input" 
                         />
                     </div>
 
@@ -144,7 +147,7 @@ export default function Signup() {
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             placeholder="Confirm your password" 
                             required 
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200" 
+                            className="w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none transition duration-200 glass-input" 
                         />
                     </div>
 
@@ -152,7 +155,7 @@ export default function Signup() {
                     <button 
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-linear-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 rounded-lg hover:from-purple-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-300 transition duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full text-white font-semibold py-3 glass-cta hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading ? 'Creating Account...' : 'Create Account'}
                     </button>
@@ -160,16 +163,16 @@ export default function Signup() {
 
                 {/* Divider */}
                 <div className="mt-6 flex items-center">
-                    <div className="flex-1 border-t border-gray-300"></div>
-                    <span className="px-4 text-sm text-gray-500">OR</span>
-                    <div className="flex-1 border-t border-gray-300"></div>
+                    <div className="flex-1 border-t border-transparent"></div>
+                    <span className="px-4 text-sm glass-divider">OR</span>
+                    <div className="flex-1 border-t border-transparent"></div>
                 </div>
 
                 {/* Login Link */}
                 <div className="mt-6 text-center">
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-200">
                         Already have an account?{' '}
-                        <Link to="/login" className="text-blue-600 font-semibold hover:text-blue-800 transition duration-200">
+                        <Link to="/login" className="text-blue-400 font-semibold hover:text-blue-200 transition duration-200">
                             Sign in
                         </Link>
                     </p>
