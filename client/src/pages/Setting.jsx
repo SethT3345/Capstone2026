@@ -29,6 +29,54 @@ export default function Settings() {
         setMessage('Admin access revoked.');
     };
 
+    const handleDeleteAccount = async () => {
+        // Show confirmation dialog
+        const confirmed = window.confirm(
+            'Are you sure you want to delete your account? This action cannot be undone.'
+        );
+        
+        if (!confirmed) return;
+
+        try {
+            // Get user from storage
+            const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+            if (!userStr) {
+                alert('No user logged in');
+                return;
+            }
+
+            const user = JSON.parse(userStr);
+            const user_id = user.id;
+
+            // Call delete API
+            const response = await fetch('/api/deleteUser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user_id }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log('Account deleted successfully:', data);
+                // Clear all user data
+                localStorage.clear();
+                sessionStorage.clear();
+                alert('Your account has been deleted successfully.');
+                // Redirect to login
+                navigate('/login');
+            } else {
+                console.error('Error deleting account:', data.error);
+                alert(data.error || 'Failed to delete account');
+            }
+        } catch (error) {
+            console.error('Error deleting account:', error);
+            alert('Failed to delete account. Please try again.');
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8">
             <div className="max-w-4xl mx-auto">
@@ -108,6 +156,7 @@ export default function Settings() {
                         </button>
 
                         <button
+                            onClick={handleDeleteAccount}
                             className="w-full px-4 py-3 text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors flex items-center justify-between"
                         >
                             <span>Delete Account</span>

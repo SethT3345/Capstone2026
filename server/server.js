@@ -437,6 +437,40 @@ app.post('/api/unenroll', async (req, res) => {
   }
 })
 
+app.post('/api/deleteUser', async (req, res) => {
+  try {
+    console.log('Received delete user request:', req.body);
+    const { user_id } = req.body;
+    
+    // Validate input
+    if (!user_id) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+    
+    const squery = "SELECT * FROM users WHERE id = $1";
+    const dquery = "DELETE FROM users WHERE id = $1 RETURNING *";
+
+    const squeryResults = await pool.query(squery, [user_id]);
+
+    if (squeryResults.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const dqueryResults = await pool.query(dquery, [user_id]);
+    
+    console.log('User deleted successfully:', dqueryResults.rows[0]);
+    
+    res.status(200).json({ 
+      message: "User deleted successfully", 
+      user: dqueryResults.rows[0] 
+    });
+
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ error: "Failed to delete user", details: error.message });
+  }
+})
+
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
