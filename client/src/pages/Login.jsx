@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import Aurora from '../components/ReactBitsBackground';
+import Aurora from '../components/Aurora.jsx';
+import './Login.css';
 
 // Login Component
 export default function Login() {
@@ -97,20 +98,20 @@ export default function Login() {
         }
     };
     return (
-        <div className="relative min-h-screen flex items-center justify-center p-4">
+        <div className="relative min-h-screen flex items-center justify-center p-4 glass-outer">
             <Aurora colorStops={['#3B82F6', '#8B5CF6', '#FFFFFF']} />
-            <div className="relative z-10 bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+            <div className="relative z-10 glass-card w-full max-w-md">
                 {/* Header */}
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
-                    <p className="text-gray-600">Please sign in to your account</p>
+                    <h1 className="text-3xl font-bold glass-title mb-2">Welcome Back</h1>
+                    <p className="text-sm text-gray-200">Please sign in to your account</p>
                 </div>
 
                 {/* Login Form */}
                 <form onSubmit={handleSubmit} className="space-y-6" noValidate onInvalid={(e) => e.preventDefault()}>
                     {/* Error Message */}
                     {error && (
-                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                        <div className="glass-error px-4 py-3 rounded-lg">
                             {error}
                         </div>
                     )}
@@ -126,8 +127,7 @@ export default function Login() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="you@example.com" 
-                            /* removed required to avoid native browser validation */
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200 placeholder:text-gray-400 text-black" />
+                            className="w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none transition duration-200 placeholder:text-gray-300 glass-input" />
                     </div>
 
                     {/* Password Input */}
@@ -141,8 +141,7 @@ export default function Login() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Enter your password" 
-                            /* removed required to avoid native browser validation */
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200 text-black" 
+                            className="w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none transition duration-200 glass-input" 
                         />
                     </div>
 
@@ -169,7 +168,7 @@ export default function Login() {
                     <button 
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 rounded-lg hover:from-purple-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-300 transition duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full text-white font-semibold py-3 glass-cta hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading ? 'Signing In...' : 'Sign In'}
                     </button>
@@ -177,9 +176,9 @@ export default function Login() {
 
                 {/* Divider */}
                 <div className="mt-6 flex items-center">
-                    <div className="flex-1 border-t border-gray-300"></div>
-                    <span className="px-4 text-sm text-gray-500">OR</span>
-                    <div className="flex-1 border-t border-gray-300"></div>
+                    <div className="flex-1 border-t border-transparent"></div>
+                    <span className="px-4 text-sm glass-divider">OR</span>
+                    <div className="flex-1 border-t border-transparent"></div>
                 </div>
 
                 {/* Sign Up Link */}
