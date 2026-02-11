@@ -23,19 +23,19 @@ export default function Navbar() {
                 <h6
                     className="text-base font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-gray-800 p-3 rounded-xl transition duration-200 flex items-center gap-3"
                     onClick={() => navigate('/')}>
-                    <span className="text-purple-600 dark:text-purple-400">🏠</span>
+                    <span className="material-icons-outlined text-purple-600 dark:text-purple-400">home</span>
                     Home
                 </h6>
                 <h6
                     className="text-base font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-gray-800 p-3 rounded-xl transition duration-200 flex items-center gap-3"
                     onClick={() => navigate('/profile')}>
-                    <span className="text-purple-600 dark:text-purple-400">👤</span>
+                    <span className="material-icons-outlined text-purple-600 dark:text-purple-400">person</span>
                     Profile
                 </h6>
                 <h6
                     className="text-base font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-gray-800 p-3 rounded-xl transition duration-200 flex items-center gap-3"
                     onClick={() => navigate('/courses')}>
-                    <span className="text-purple-600 dark:text-purple-400">📚</span>
+                    <span className="material-icons-outlined text-purple-600 dark:text-purple-400">menu_book</span>
                     Courses
                 </h6>
             </div>
@@ -44,7 +44,7 @@ export default function Navbar() {
                 <h6
                     className="text-base font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-gray-800 p-3 rounded-xl transition duration-200 flex items-center gap-3"
                     onClick={() => navigate('/admin')}>
-                    <span className="text-purple-600 dark:text-purple-400">🔒</span>
+                    <span className="material-icons-outlined text-purple-600 dark:text-purple-400">admin_panel_settings</span>
                     Admin
                 </h6>
             </div>
@@ -53,7 +53,7 @@ export default function Navbar() {
                 <div 
                     className="text-base font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-gray-800 p-3 rounded-xl transition duration-200 mb-4 flex items-center gap-3"
                     onClick={() => navigate('/settings')}>
-                    <span className="text-purple-600 dark:text-purple-400">⚙️</span>
+                    <span className="material-icons-outlined text-purple-600 dark:text-purple-400">settings</span>
                     Settings
                 </div>
 
