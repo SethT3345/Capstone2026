@@ -61,9 +61,9 @@ export default function Courses() {
                 setSearchError(data.message || data.error || 'Course not found');
                 setSearchResults(null);
             } else {
-                setSearchResults(data.course);
+                setSearchResults(data.courses);
                 setSearchError('');
-                console.log('Course found:', data.course);
+                console.log('Courses found:', data.courses);
             }
         } catch (error) {
             console.error('Search error:', error);
@@ -93,7 +93,7 @@ export default function Courses() {
                             <div className="mb-8">
                                 <div className="flex justify-between items-center mb-4">
                                     <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-                                        Search Results
+                                        Search Results ({searchResults.length})
                                     </h2>
                                     <button
                                         onClick={() => setSearchResults(null)}
@@ -103,20 +103,12 @@ export default function Courses() {
                                     </button>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    <CourseCard 
-                                        key={searchResults.course_id || searchResults.id}
-                                        course={{
-                                            course_id: searchResults.course_id || searchResults.id,
-                                            course_title: searchResults.course_title,
-                                            course_description: searchResults.course_description || searchResults.description,
-                                            classroom_number: searchResults.classroom_number,
-                                            instructor: searchResults.instructor,
-                                            capacity: searchResults.capacity,
-                                            duration: searchResults.duration,
-                                            level: searchResults.level,
-                                            price: searchResults.price
-                                        }}
-                                    />
+                                    {searchResults.map((course) => (
+                                        <CourseCard 
+                                            key={course.id || course.course_id}
+                                            course={course}
+                                        />
+                                    ))}
                                 </div>
                             </div>
                         )}

@@ -56,14 +56,14 @@ app.post("/api/search-course", async (req, res) => {
     console.log('Received request body:', req.body);
     const { courseName } = req.body;
     
-    if (!courseName) {
+    if (!courseName || courseName.trim() === '') {
       return res.status(400).json({ error: "Course name is required" });
     }
     
     // Using parameterized query to prevent SQL injection
     console.log('Searching for course:', courseName);
-    const query = "SELECT * FROM classes WHERE course_title = $1 and capacity > 0";
-    const result = await pool.query(query, [courseName]);
+    const query = "SELECT * FROM classes WHERE LOWER(course_title) LIKE LOWER($1) AND capacity > 0";
+    const result = await pool.query(query, [`${courseName.trim()}%`]);
     
     console.log('Query result:', result.rows);
     
@@ -71,7 +71,8 @@ app.post("/api/search-course", async (req, res) => {
       return res.status(404).json({ message: "Course not found or is full" });
     }
     
-    res.json({ course: result.rows[0] });
+    // Return all matching courses
+    res.json({ courses: result.rows });
   } catch (error) {
     console.error("Database error details:", error.message);
     console.error("Full error:", error);
