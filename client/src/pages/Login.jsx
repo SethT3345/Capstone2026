@@ -33,8 +33,18 @@ export default function Login() {
         e.preventDefault();
         setError("");
         
-        if (!email || !password) {
+        const emailTrim = email.trim();
+        if (!emailTrim || !password) {
             setError("Please enter both email and password");
+            return;
+        }
+        const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRe.test(emailTrim)) {
+            setError("Please enter a valid email address");
+            return;
+        }
+        if (password.length < 6) {
+            setError("Password must be at least 6 characters");
             return;
         }
 
@@ -95,7 +105,7 @@ export default function Login() {
                 </div>
 
                 {/* Login Form */}
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6" noValidate onInvalid={(e) => e.preventDefault()}>
                     {/* Error Message */}
                     {error && (
                         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
@@ -114,7 +124,7 @@ export default function Login() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="you@example.com" 
-                            required 
+                            /* removed required to avoid native browser validation */
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200" />
                     </div>
 
@@ -129,7 +139,7 @@ export default function Login() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Enter your password" 
-                            required 
+                            /* removed required to avoid native browser validation */
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200" 
                         />
                     </div>
