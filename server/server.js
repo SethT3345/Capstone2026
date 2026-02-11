@@ -56,14 +56,14 @@ app.post("/api/search-course", async (req, res) => {
     console.log('Received request body:', req.body);
     const { courseName } = req.body;
     
-    if (!courseName) {
+    if (!courseName || courseName.trim() === '') {
       return res.status(400).json({ error: "Course name is required" });
     }
     
     // Using parameterized query to prevent SQL injection
     console.log('Searching for course:', courseName);
-    const query = "SELECT * FROM classes WHERE course_title = $1 and capacity > 0";
-    const result = await pool.query(query, [courseName]);
+    const query = "SELECT * FROM classes WHERE LOWER(course_title) LIKE LOWER($1) AND capacity > 0";
+    const result = await pool.query(query, [`${courseName.trim()}%`]);
     
     console.log('Query result:', result.rows);
     
@@ -71,7 +71,8 @@ app.post("/api/search-course", async (req, res) => {
       return res.status(404).json({ message: "Course not found or is full" });
     }
     
-    res.json({ course: result.rows[0] });
+    // Return all matching courses
+    res.json({ courses: result.rows });
   } catch (error) {
     console.error("Database error details:", error.message);
     console.error("Full error:", error);
@@ -434,6 +435,40 @@ app.post('/api/unenroll', async (req, res) => {
   } catch (error) {
     console.error("Error unenrolling:", error);
     res.status(500).json({ error: "Failed to unenroll", details: error.message });
+  }
+})
+
+app.post('/api/deleteUser', async (req, res) => {
+  try {
+    console.log('Received delete user request:', req.body);
+    const { user_id } = req.body;
+    
+    // Validate input
+    if (!user_id) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+    
+    const squery = "SELECT * FROM users WHERE id = $1";
+    const dquery = "DELETE FROM users WHERE id = $1 RETURNING *";
+
+    const squeryResults = await pool.query(squery, [user_id]);
+
+    if (squeryResults.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const dqueryResults = await pool.query(dquery, [user_id]);
+    
+    console.log('User deleted successfully:', dqueryResults.rows[0]);
+    
+    res.status(200).json({ 
+      message: "User deleted successfully", 
+      user: dqueryResults.rows[0] 
+    });
+
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ error: "Failed to delete user", details: error.message });
   }
 })
 

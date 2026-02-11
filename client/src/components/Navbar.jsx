@@ -14,7 +14,7 @@ export default function Navbar() {
         <div className="fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-purple-50 via-white to-white dark:from-gray-800 dark:via-gray-900 dark:to-gray-900 shadow-2xl flex flex-col p-6">
             {/* Header */}
             <div className="mb-8 pb-6 border-b border-purple-100 dark:border-gray-700">
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2">Logo</h1>
+                <img src="Logo.png" alt="Logo" className="w-full h-auto mb-2 object-cover object-center" style={{ objectFit: 'contain', maxHeight: '120px' }} />
                 <p className="text-xs text-gray-500 dark:text-gray-400">Course Manager</p>
             </div>
             
