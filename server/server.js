@@ -376,6 +376,66 @@ app.delete('/api/deleteClass/:id', async (req, res) => {
 })
 
 
+app.post('/api/unenroll', async (req, res) => {
+  try {
+    console.log('Received unenroll request:', req.body);
+    const { course_id, user_id } = req.body;
+    
+    // Validate inputs
+    if (!course_id || !user_id) {
+      return res.status(400).json({ error: "Course ID and User ID are required" });
+    }
+    
+    // Get current user's classes
+    const userQuery = "SELECT classes FROM users WHERE id = $1";
+    const userResult = await pool.query(userQuery, [user_id]);
+    
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    
+    const currentClasses = userResult.rows[0].classes || [];
+    
+    // Parse existing classes if stored as JSON string, or use empty array
+    let classesArray = [];
+    if (typeof currentClasses === 'string') {
+      try {
+        classesArray = JSON.parse(currentClasses);
+      } catch (e) {
+        classesArray = [];
+      }
+    } else if (Array.isArray(currentClasses)) {
+      classesArray = currentClasses;
+    }
+    
+    // Check if user is not in class
+    if (!classesArray.includes(course_id)) {
+      return res.status(400).json({ error: "User not enrolled in this course" });
+    }
+    
+    // Remove course_id from the classes array
+    classesArray = classesArray.filter(id => id !== course_id);
+    
+    // Store back as JSON string
+    const updateQuery = "UPDATE users SET classes = $1 WHERE id = $2 RETURNING *";
+    const result = await pool.query(updateQuery, [JSON.stringify(classesArray), user_id]);
+    
+    // Increase course capacity
+    const capacityQuery = "UPDATE classes SET capacity = capacity + 1 WHERE id = $1";
+    await pool.query(capacityQuery, [course_id]);
+
+    console.log('Unenrollment successful:', result.rows[0]);
+    
+    res.status(200).json({ 
+      message: "Successfully unenrolled from course", 
+      user: result.rows[0] 
+    });
+
+  } catch (error) {
+    console.error("Error unenrolling:", error);
+    res.status(500).json({ error: "Failed to unenroll", details: error.message });
+  }
+})
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
