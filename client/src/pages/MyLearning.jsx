@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react'
-import Navbar from '../components/Navbar.jsx'
-import Header from '../components/Header.jsx'
-import MyLearningCard from '../components/MyLearningCard.jsx'
-import EnrolledCourses from '../components/EnrolledCourses.jsx'
+import React, { useEffect, useState } from 'react';
+import Navbar from '../components/Navbar.jsx';
+import Header from '../components/Header.jsx';
+import MyLearningCard from '../components/MyLearningCard.jsx';
+import EnrolledCourses from '../components/EnrolledCourses.jsx';
 
 export default function MyLearning() {
   return (
-    <div className='flex'>
+    <div className="flex">
       <Navbar />
       <div className="right-side flex-1 min-h-screen bg-gray-100 dark:bg-gray-900 ml-64">
         <Header />
@@ -15,7 +15,9 @@ export default function MyLearning() {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Learning</h1>
-                <p className="text-gray-600 dark:text-gray-400 mt-1">Your enrolled courses and progress.</p>
+                <p className="text-gray-600 dark:text-gray-400 mt-1">
+                  Your enrolled courses and progress.
+                </p>
               </div>
               <div className="flex items-center gap-3">
                 <input
@@ -39,5 +41,5 @@ export default function MyLearning() {
         </main>
       </div>
     </div>
-  )
+  );
 }
