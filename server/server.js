@@ -472,6 +472,20 @@ app.post('/api/deleteUser', async (req, res) => {
   }
 })
 
+app.get("/api/getUsers", async (req, res) => {
+  try {
+    console.log('Fetching all users...');
+    const query = "SELECT * FROM users ORDER BY id";
+    const result = await pool.query(query);
+    
+    console.log(`Found ${result.rows.length} users`);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Database error:", error.message);
+    res.status(500).json({ error: "Failed to fetch users", details: error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
