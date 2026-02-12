@@ -11,7 +11,7 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-purple-50 via-white to-white dark:from-gray-800 dark:via-gray-900 dark:to-gray-900 shadow-2xl flex flex-col p-6">
+      <div className="fixed left-0 top-0 h-screen w-64 bg-linear-to-b from-purple-50 via-white to-white dark:from-gray-800 dark:via-gray-900 dark:to-gray-900 shadow-2xl flex flex-col p-6">
         {/* Header */}
         <div className="mb-8 pb-6 border-b border-purple-100 dark:border-gray-700">
           <img
@@ -80,7 +80,7 @@ export default function Navbar() {
           {/* Logout Button at Bottom */}
           <button
             onClick={handleLogout}
-            className="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-700 dark:to-indigo-700 text-white font-medium rounded-xl hover:from-purple-700 hover:to-indigo-700 dark:hover:from-purple-600 dark:hover:to-indigo-600 hover:shadow-lg transform hover:scale-105 transition duration-200 mt-auto"
+            className="w-full px-4 py-3 bg-linear-to-r from-purple-600 to-indigo-600 dark:from-purple-700 dark:to-indigo-700 text-white font-medium rounded-xl hover:from-purple-700 hover:to-indigo-700 dark:hover:from-purple-600 dark:hover:to-indigo-600 hover:shadow-lg transform hover:scale-105 transition duration-200 mt-auto"
           >
             Logout
           </button>

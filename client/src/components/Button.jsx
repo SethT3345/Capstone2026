@@ -16,7 +16,7 @@ export default function Button({
   // Variant styles
   const variants = {
     primary:
-      'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700',
+      'bg-linear-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700',
     secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300',
     outline: 'border-2 border-purple-600 text-purple-600 hover:bg-purple-50',
     danger: 'bg-red-600 text-white hover:bg-red-700',

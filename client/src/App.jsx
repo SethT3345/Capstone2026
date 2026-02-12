@@ -11,7 +11,7 @@ import Courses from './pages/Courses.jsx';
 import Settings from './pages/Setting.jsx';
 import NotLoggedIn from './pages/NotLoggedIn.jsx';
 import MyLearning from './pages/MyLearning.jsx';
-import AuthSuccess from './pages/AuthSuccess.jsx'
+import AuthSuccess from './pages/AuthSuccess.jsx';
 import AdminRoute from './routes/AdminRoute';
 import AdminPage from './pages/admin/AdminPage.jsx';
 import AdminVerification from './pages/admin/AdminVerification.jsx';
@@ -19,9 +19,44 @@ import AdminUsers from './pages/admin/AdminUsers.jsx';
 import AdminCourses from './pages/admin/AdminCourses.jsx';
 
 // Protected Route component
+
 function ProtectedRoute({ children }) {
-  const user = localStorage.getItem('user');
-  return user ? children : <NotLoggedIn />;
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAuth, setIsAuth] = useState(false);
+
+  useEffect(() => {
+    // First check localStorage
+    const user = localStorage.getItem('user');
+    if (user) {
+      setIsAuth(true);
+      setAuthChecked(true);
+      return;
+    }
+
+  // If not in localStorage, ask the server if there's an authenticated session
+  fetch('/api/auth/current-user', { credentials: 'include' })
+      .then((res) => {
+        if (!res.ok) throw new Error('Not authenticated');
+        return res.json();
+      })
+      .then((data) => {
+        if (data && data.user) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+          setIsAuth(true);
+        }
+      })
+      .catch(() => {
+        // not authenticated
+      })
+      .finally(() => setAuthChecked(true));
+  }, []);
+
+  if (!authChecked) {
+    // Optionally render a spinner while we check
+    return null;
+  }
+
+  return isAuth ? children : <NotLoggedIn />;
 }
 
 // (Use the imported AdminRoute from ./routes/AdminRoute)
@@ -41,8 +76,8 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route 
-          path="/" 
+        <Route
+          path="/"
           element={
             <ProtectedRoute>
               <Home />
@@ -119,6 +154,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+  {/* OAuth redirect landing page - stores user data then navigates to home */}
+  <Route path="/auth-success" element={<AuthSuccess />} />
         {/* Catch-all route for undefined paths */}
         <Route path="*" element={<NotLoggedIn />} />
       </Routes>

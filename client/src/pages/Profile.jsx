@@ -5,31 +5,20 @@ import Navbar from '../components/Navbar.jsx';
 import Header from '../components/Header.jsx';
 
 export default function Profile() {
-<<<<<<< HEAD
-  const userString = localStorage.getItem('user') || sessionStorage.getItem('user');
-  const user = userString ? JSON.parse(userString) : null;
+  const [user, setUser] = useState(null);
   const [numClasses, setNumClasses] = useState(0);
+
+  useEffect(() => {
+    // Get user from storage
+    const userString = localStorage.getItem('user') || sessionStorage.getItem('user');
+    const userData = userString ? JSON.parse(userString) : null;
+    setUser(userData);
+  }, []);
 
   useEffect(() => {
     // Fetch number of enrolled classes
     const fetchClassCount = async () => {
       if (!user || !user.id) return;
-=======
-    const [user, setUser] = useState(null);
-    const [numClasses, setNumClasses] = useState(0);
-
-    useEffect(() => {
-        // Get user from storage
-        const userString = localStorage.getItem('user') || sessionStorage.getItem('user');
-        const userData = userString ? JSON.parse(userString) : null;
-        setUser(userData);
-    }, []);
-
-    useEffect(() => {
-        // Fetch number of enrolled classes
-        const fetchClassCount = async () => {
-            if (!user || !user.id) return;
->>>>>>> main
 
       try {
         const response = await fetch('/api/numOfClasses', {
@@ -49,13 +38,8 @@ export default function Profile() {
       }
     };
 
-<<<<<<< HEAD
     fetchClassCount();
-  }, []); // Empty dependency array - only run once on mount
-=======
-        fetchClassCount();
-    }, [user]); // Add user as dependency to re-run when user data is available
->>>>>>> main
+  }, [user]); // Add user as dependency to re-run when user data is available
 
   return (
     <>
@@ -68,7 +52,7 @@ export default function Profile() {
           {/* Main Content */}
           <main className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-28">
             {/* Profile Header Section */}
-            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-700 dark:to-indigo-700 rounded-lg shadow-lg p-8 mb-6">
+            <div className="bg-linear-to-r from-purple-600 to-indigo-600 dark:from-purple-700 dark:to-indigo-700 rounded-lg shadow-lg p-8 mb-6">
               <div className="flex items-center gap-6">
                 {/* Profile Avatar */}
                 <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import Aurora from '../../components/Aurora.jsx';
+import Aurora from '../components/Aurora.jsx';
 
 // Signup Component
 export default function Signup() {
@@ -47,25 +47,28 @@ export default function Signup() {
 
       const data = await response.json();
 
-            if (response.ok) {
-                // Store user data in localStorage
-                localStorage.setItem('user', JSON.stringify({ 
-                    id: data.user.id,
-                    email: data.user.username,
-                    name
-                }));
-                // Navigate to home
-                navigate('/');
-            } else {
-                setError(data.error || 'Failed to create account');
-            }
-        } catch (err) {
-            console.error('Signup error:', err);
-            setError('Network error. Please make sure the server is running.');
-        } finally {
-            setLoading(false);
-        }
-    };
+      if (response.ok) {
+        // Store user data in localStorage
+        localStorage.setItem(
+          'user',
+          JSON.stringify({
+            id: data.user.id,
+            email: data.user.username,
+            name,
+          })
+        );
+        // Navigate to home
+        navigate('/');
+      } else {
+        setError(data.error || 'Failed to create account');
+      }
+    } catch (err) {
+      console.error('Signup error:', err);
+      setError('Network error. Please make sure the server is running.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="relative min-h-screen flex items-center justify-center p-4">
