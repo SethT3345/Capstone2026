@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function Header({ onSearch, searching, searchError }) {
     const [searchQuery, setSearchQuery] = useState('');
+    const navigate = useNavigate();
+    const location = useLocation();
 
     const handleSearch = async (e) => {
         e.preventDefault();
         
-        // If onSearch prop is provided (from Courses page), use it
+        // If not on courses page, navigate to it first
+        if (location.pathname !== '/courses') {
+            navigate('/courses');
+        }
+
+        // Perform the search
         if (onSearch) {
             onSearch(searchQuery);
         } else {
@@ -39,9 +47,16 @@ export default function Header({ onSearch, searching, searchError }) {
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        handleSearch(e);
+                                    }
+                                }}
                                 placeholder="Search your courses here..."
                                 className="w-full h-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:bg-white dark:focus:bg-gray-600 transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                                 disabled={searching}
+
                             />
                         </div>
                         
