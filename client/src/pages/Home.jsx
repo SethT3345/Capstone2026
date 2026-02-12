@@ -3,9 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import Profile from './Profile.jsx';
 import Navbar from '../components/Navbar.jsx';
 import Header from '../components/Header.jsx';
+import EnrolledCourses from '../components/EnrolledCourses.jsx';
 
 export default function Home() {
     const navigate = useNavigate();
+
+    // EnrolledCourses component will fetch and filter the user's enrolled courses.
+    // We'll use its function-as-child to render the count where needed.
 
     const handleLogout = () => {
 
@@ -40,7 +44,7 @@ export default function Home() {
             {/* Main Content */}
             <main className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-28">
                 {/* Welcome Banner */}
-                <div className="bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-700 dark:to-indigo-700 rounded-lg shadow-lg p-8 mb-8 text-white">
+                <div className="bg-linear-to-r from-purple-600 to-indigo-600 dark:from-purple-700 dark:to-indigo-700 rounded-lg shadow-lg p-8 mb-8 text-white">
                     <h1 className="text-4xl font-bold mb-4">Welcome Back! 👋</h1>
                     <p className="text-xl text-purple-100">
                         Continue your learning journey and explore new courses
@@ -57,7 +61,11 @@ export default function Home() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                 </svg>
                             </div>
-                            <span className="text-3xl font-bold text-gray-900 dark:text-white">0</span>
+                                                        <span className="text-3xl font-bold text-gray-900 dark:text-white">
+                                                            <EnrolledCourses>
+                                                                {({ courses, loading }) => (loading ? '...' : (courses ? courses.length : 0))}
+                                                            </EnrolledCourses>
+                                                        </span>
                         </div>
                         <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">Active Courses</h3>
                         <p className="text-gray-600 dark:text-gray-400 text-sm">Continue learning where you left off</p>
