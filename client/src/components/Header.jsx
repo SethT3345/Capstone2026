@@ -47,10 +47,10 @@ export default function Header({ onSearch, searching, searchError }) {
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        handleSearch(e);
+                                onKeyDown={(event) => {
+                                    if (event.key === 'Enter') {
+                                        event.preventDefault();
+                                        handleSearch(event);
                                     }
                                 }}
                                 placeholder="Search your courses here..."

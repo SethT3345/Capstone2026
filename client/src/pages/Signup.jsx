@@ -48,12 +48,8 @@ export default function Signup() {
             const data = await response.json();
 
             if (response.ok) {
-                // Store user data in localStorage
-                localStorage.setItem('user', JSON.stringify({ 
-                    id: data.user.id,
-                    email: data.user.username,
-                    name
-                }));
+                // Store the complete user data from server
+                localStorage.setItem('user', JSON.stringify(data.user));
                 // Navigate to home
                 navigate('/');
             } else {
