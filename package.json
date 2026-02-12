@@ -16,6 +16,9 @@
     "express": "^5.2.1"
   },
   "engines": {
-  "node": "25.4.0"
-}
+    "node": "25.4.0"
+  },
+  "devDependencies": {
+    "prettier": "3.8.1"
+  }
 }
