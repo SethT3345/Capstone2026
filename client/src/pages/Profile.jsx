@@ -5,9 +5,15 @@ import Navbar from '../components/Navbar.jsx';
 import Header from '../components/Header.jsx';
 
 export default function Profile() {
-    const userString = localStorage.getItem('user') || sessionStorage.getItem('user');
-    const user = userString ? JSON.parse(userString) : null;
+    const [user, setUser] = useState(null);
     const [numClasses, setNumClasses] = useState(0);
+
+    useEffect(() => {
+        // Get user from storage
+        const userString = localStorage.getItem('user') || sessionStorage.getItem('user');
+        const userData = userString ? JSON.parse(userString) : null;
+        setUser(userData);
+    }, []);
 
     useEffect(() => {
         // Fetch number of enrolled classes
@@ -33,7 +39,7 @@ export default function Profile() {
         };
 
         fetchClassCount();
-    }, []); // Empty dependency array - only run once on mount
+    }, [user]); // Add user as dependency to re-run when user data is available
 
     return(
         <>

@@ -1,8 +1,12 @@
 // server/server.js
 
+require('dotenv').config();
 const express = require("express");
 const path = require("path");
 const { Pool } = require("pg");
+const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const session = require("express-session");
 
 // Database connection
 const DB_URL = "postgresql://postgrescapstone_b7f9_user:LWBbdDg3ziJwHTpfFsIHv3y6LYyJLM2g@dpg-d610oupr0fns73cgia7g-a.oregon-postgres.render.com/postgrescapstone_b7f9";
@@ -26,6 +30,69 @@ const app = express();
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
+
+// Session configuration (add BEFORE passport initialization)
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-development-secret-key-change-in-production',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Passport serialization
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+    done(null, result.rows[0]);
+  } catch (error) {
+    done(error, null);
+  }
+});
+
+// Google OAuth Strategy
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "http://localhost:3005/api/auth/google/callback"
+  },
+  async (accessToken, refreshToken, profile, done) => {
+    try {
+      // Check if user exists
+      const email = profile.emails[0].value;
+      const checkQuery = "SELECT * FROM users WHERE username = $1";
+      const existingUser = await pool.query(checkQuery, [email]);
+
+      if (existingUser.rows.length > 0) {
+        // User exists, return it
+        return done(null, existingUser.rows[0]);
+      } else {
+        // Create new user
+        const id = Math.floor(10000 + Math.random() * 90000);
+        const insertQuery = `
+          INSERT INTO users (id, username, password, created_at, updated_at) 
+          VALUES ($1, $2, $3, NOW(), NOW()) 
+          RETURNING *
+        `;
+        // Store a placeholder password for OAuth users
+        const newUser = await pool.query(insertQuery, [id, email, 'google-oauth']);
+        return done(null, newUser.rows[0]);
+      }
+    } catch (error) {
+      return done(error, null);
+    }
+  }
+));
 
 // Have Node serve the files for our built React app
 app.use(express.static(path.resolve(__dirname, "../client/dist")));
@@ -483,6 +550,85 @@ app.get("/api/getUsers", async (req, res) => {
   } catch (error) {
     console.error("Database error:", error.message);
     res.status(500).json({ error: "Failed to fetch users", details: error.message });
+  }
+});
+
+// Google OAuth routes
+app.get('/api/auth/google',
+  (req, res, next) => {
+    console.log('Starting Google OAuth flow...');
+    next();
+  },
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+app.get('/api/auth/google/callback',
+  passport.authenticate('google', { 
+    failureRedirect: 'http://localhost:5173/login',
+    failureMessage: true 
+  }),
+  (req, res) => {
+    // Successful authentication
+    console.log('Google auth successful, user:', req.user);
+    
+    // Store complete user data in localStorage-compatible format for frontend
+    const userData = {
+      id: req.user.id,
+      username: req.user.username,
+      password: req.user.password,
+      classes: req.user.classes || '[]',
+      created_at: req.user.created_at,
+      updated_at: req.user.updated_at
+    };
+    
+    console.log('Storing user data in localStorage:', userData);
+    
+    // Encode user data as URL parameter so frontend can store it
+    const userDataEncoded = encodeURIComponent(JSON.stringify(userData));
+    
+    // Redirect to frontend with user data
+    res.redirect(`http://localhost:5173/auth-success?user=${userDataEncoded}`);
+  }
+);
+
+// Add error handling route
+app.use((err, req, res, next) => {
+  console.error('Authentication Error:', err);
+  res.status(err.status || 500).json({
+    error: err.message,
+    details: err.stack
+  });
+});
+
+// Logout route
+app.get('/api/auth/logout', (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      return res.status(500).json({ error: 'Logout failed' });
+    }
+    res.json({ message: 'Logged out successfully' });
+  });
+});
+
+// Check authentication status and get updated user data
+app.get('/api/auth/current-user', async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      // Fetch fresh user data from database to ensure it's up-to-date
+      const query = "SELECT * FROM users WHERE id = $1";
+      const result = await pool.query(query, [req.user.id]);
+      
+      if (result.rows.length > 0) {
+        res.json({ user: result.rows[0] });
+      } else {
+        res.status(404).json({ error: 'User not found' });
+      }
+    } catch (error) {
+      console.error('Error fetching current user:', error);
+      res.status(500).json({ error: 'Failed to fetch user data' });
+    }
+  } else {
+    res.status(401).json({ error: 'Not authenticated' });
   }
 });
 
