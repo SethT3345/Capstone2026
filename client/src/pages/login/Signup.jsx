@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import Aurora from '../components/Aurora.jsx';
+import Aurora from '../../components/Aurora.jsx';
 
 // Signup Component
 export default function Signup() {

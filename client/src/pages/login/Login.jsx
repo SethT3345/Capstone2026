@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import Aurora from '../components/Aurora.jsx';
+import Aurora from '../../components/Aurora.jsx';
 
 // Login Component
 export default function Login() {
