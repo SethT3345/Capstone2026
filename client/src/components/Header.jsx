@@ -14,6 +14,7 @@ export default function Header({ onSearch, searching, searchError }) {
       navigate('/courses');
     }
 
+<<<<<<< HEAD
     // Perform the search
     if (onSearch) {
       onSearch(searchQuery);
@@ -22,6 +23,41 @@ export default function Header({ onSearch, searching, searchError }) {
       console.log('Searching for:', searchQuery);
     }
   };
+=======
+    return (
+        <header className="fixed top-0 right-0 left-64 bg-gradient-to-r from-purple-50 via-white to-purple-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 z-10 px-8 py-6 shadow-sm">
+            <div className="max-w-7xl mx-auto">
+                <form onSubmit={handleSearch} className="relative">
+                    <div className="flex items-stretch gap-3">
+                        {/* Search Input with Icon */}
+                        <div className="relative flex-1">
+                            <svg 
+                                className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-500 dark:text-purple-400" 
+                                fill="none" 
+                                viewBox="0 0 24 24" 
+                                stroke="currentColor"
+                            >
+                                <path 
+                                    strokeLinecap="round" 
+                                    strokeLinejoin="round" 
+                                    strokeWidth={2} 
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
+                                />
+                            </svg>
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onKeyDown={(event) => {
+                                    if (event.key === 'Enter') {
+                                        event.preventDefault();
+                                        handleSearch(event);
+                                    }
+                                }}
+                                placeholder="Search your courses here..."
+                                className="w-full h-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:bg-white dark:focus:bg-gray-600 transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                                disabled={searching}
+>>>>>>> main
 
   return (
     <header className="fixed top-0 right-0 left-64 bg-gradient-to-r from-purple-50 via-white to-purple-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 z-10 px-8 py-6 shadow-sm">

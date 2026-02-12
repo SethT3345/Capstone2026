@@ -11,6 +11,7 @@ import Courses from './pages/Courses.jsx';
 import Settings from './pages/Setting.jsx';
 import NotLoggedIn from './pages/NotLoggedIn.jsx';
 import MyLearning from './pages/MyLearning.jsx';
+import AuthSuccess from './pages/AuthSuccess.jsx'
 import AdminRoute from './routes/AdminRoute';
 import AdminPage from './pages/admin/AdminPage.jsx';
 import AdminVerification from './pages/admin/AdminVerification.jsx';
@@ -40,8 +41,8 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route
-          path="/"
+        <Route 
+          path="/" 
           element={
             <ProtectedRoute>
               <Home />

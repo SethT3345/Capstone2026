@@ -63,40 +63,42 @@ export default function Login() {
 
       const data = await response.json();
 
-      if (response.ok) {
-        const userData = {
-          id: data.user.id,
-          email: data.user.username,
-          password: data.user.password,
-          createdAt: data.user.created_at,
-        };
+            if (response.ok) {
+                const userData = { 
+                    id: data.user.id,
+                    email: data.user.username,
+                    password: data.user.password,
+                    createdAt: data.user.created_at
+                    
+                
+                };
+                
+                localStorage.setItem('user', JSON.stringify(userData));
 
-        localStorage.setItem('user', JSON.stringify(userData));
-
-        // Store in localStorage or sessionStorage based on remember me
-        if (rememberMe) {
-          localStorage.setItem('user', JSON.stringify(userData));
-          localStorage.setItem('remember-me', 'true');
-        } else {
-          localStorage.removeItem('remember-me');
+                // Store in localStorage or sessionStorage based on remember me
+                if (rememberMe) {
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    localStorage.setItem('remember-me', 'true');
+                } else {
+                    localStorage.removeItem('remember-me');
+                }
+                
+                // Navigate to home
+                navigate('/');
+            } else {
+                // Show error message from server
+                setError(data.error || 'Login failed');
+            }
+        } catch (err) {
+            console.error('Login error:', err);
+            setError('Network error. Please make sure the server is running.');
+        } finally {
+            setLoading(false);
         }
-
-        // Navigate to home
-        navigate('/');
-      } else {
-        // Show error message from server
-        setError(data.error || 'Login failed');
-      }
-    } catch (err) {
-      console.error('Login error:', err);
-      setError('Network error. Please make sure the server is running.');
-    } finally {
-      setLoading(false);
-    }
-  };
-  return (
-    <div className="relative min-h-screen flex items-center justify-center p-4">
-      <Aurora colorStops={['#3B82F6', '#8B5CF6', '#FFFFFF']} />
+    };
+    return (
+        <div className="relative min-h-screen flex items-center justify-center p-4">
+            <Aurora colorStops={["#3B82F6", "#8B5CF6", "#FFFFFF"]} />
 
       <div className="relative w-full max-w-md">
         {/* neon rim / glow behind the card */}
@@ -179,14 +181,14 @@ export default function Login() {
               </a>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full text-white font-semibold py-3 rounded-lg bg-linear-to-r from-purple-600 to-sky-500 shadow-lg hover:shadow-2xl transform-gpu hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Signing In...' : 'Sign In'}
-            </button>
-          </form>
+                    <button 
+                        type="submit"
+                        disabled={loading}
+                        className="w-full text-white font-semibold py-3 rounded-lg bg-linear-to-r from-purple-600 to-sky-500 shadow-lg hover:shadow-2xl transform-gpu hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {loading ? 'Signing In...' : 'Sign In'}
+                    </button>
+                </form>
 
           <div className="mt-6 flex items-center">
             <div className="flex-1 border-t border-black/10 dark:border-white/6"></div>
