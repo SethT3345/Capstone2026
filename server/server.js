@@ -477,6 +477,68 @@ app.delete('/api/deleteClass/:id', async (req, res) => {
   }
 })
 
+app.put('/api/editClass/:id', async (req, res) => {
+  try {
+    console.log('Received edit class request for ID:', req.params.id);
+    console.log('Request body:', req.body);
+    
+    const classId = req.params.id;
+    const { code, title, description, classroomNumber, seats, creditHours, tuitionCost } = req.body;
+    
+    // Validate input
+    if (!classId) {
+      return res.status(400).json({ error: "Class ID is required" });
+    }
+    
+    // Check if class exists
+    const checkQuery = "SELECT * FROM classes WHERE id = $1";
+    const checkResult = await pool.query(checkQuery, [classId]);
+    
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({ error: "Class not found" });
+    }
+    
+    // Update the class
+    const updateQuery = `
+      UPDATE classes 
+      SET 
+        course_id = $1,
+        course_title = $2,
+        course_description = $3,
+        classroom_number = $4,
+        capacity = $5,
+        credit_hours = $6,
+        tuition_cost = $7,
+        updated_at = NOW()
+      WHERE id = $8
+      RETURNING *
+    `;
+    
+    const values = [
+      code || checkResult.rows[0].course_id,
+      title || checkResult.rows[0].course_title,
+      description || checkResult.rows[0].course_description || '',
+      classroomNumber || checkResult.rows[0].classroom_number || '',
+      seats !== undefined ? seats : checkResult.rows[0].capacity,
+      creditHours !== undefined ? creditHours : checkResult.rows[0].credit_hours,
+      tuitionCost !== undefined ? tuitionCost : checkResult.rows[0].tuition_cost,
+      classId
+    ];
+    
+    const result = await pool.query(updateQuery, values);
+    
+    console.log('Class updated successfully:', result.rows[0]);
+    
+    res.status(200).json({ 
+      message: "Class updated successfully", 
+      class: result.rows[0] 
+    });
+    
+  } catch (error) {
+    console.error("Error editing class:", error);
+    res.status(500).json({ error: "Failed to edit class", details: error.message });
+  }
+})
 
 app.post('/api/unenroll', async (req, res) => {
   try {
