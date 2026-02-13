@@ -55,7 +55,7 @@ export default function AdminCourses() {
   function openEdit(course) {
     setEditingCourse(course.id);
     setForm({
-      code: course.course_code || course.code || '',
+      code: course.course_id || course.course_code || course.code || '',
       title: course.course_title || course.title || '',
       description: course.course_description || course.description || course.instructor || '',
       classroomNumber: String(course.classroom_number || course.classroomNumber || ''),
@@ -98,9 +98,31 @@ export default function AdminCourses() {
     };
 
     if (editingCourse) {
-      // TODO: Update existing course via API
-      setCourses((prev) => prev.map((c) => (c.id === editingCourse ? { ...c, ...payload } : c)));
-      closeModal();
+      // Update existing course via API
+      try {
+        const response = await fetch(`/api/editClass/${editingCourse}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          console.log('Class updated successfully:', data);
+          // Refresh the courses list
+          await fetchCourses();
+          closeModal();
+        } else {
+          console.error('Error updating class:', data.error);
+          alert(data.error || 'Failed to update class');
+        }
+      } catch (error) {
+        console.error('Error updating class:', error);
+        alert('Failed to update class. Please try again.');
+      }
     } else {
       // Create new course via API
       try {

@@ -7,6 +7,7 @@ import Header from '../components/Header.jsx';
 export default function Profile() {
   const [user, setUser] = useState(null);
   const [numClasses, setNumClasses] = useState(0);
+  const cuser = localStorage.getItem('user');
 
   useEffect(() => {
     // Get user from storage
@@ -74,7 +75,7 @@ export default function Profile() {
                   <h1 className="text-3xl font-bold text-white mb-2">
                     {user && user.username ? user.username.split('@')[0] : 'User'}
                   </h1>
-                  <p className="text-purple-100 text-lg">Student Account</p>
+                  <p className="text-purple-100 text-lg"></p>
                 </div>
 
                 {/* Edit Button */}
@@ -117,7 +118,7 @@ export default function Profile() {
                     <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
                       <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Account Type</p>
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
-                        Student
+                        {user.admin === true ? 'Admin' : 'Student'}
                       </span>
                     </div>
                     <div>
