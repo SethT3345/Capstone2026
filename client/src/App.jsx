@@ -33,8 +33,8 @@ function ProtectedRoute({ children }) {
       return;
     }
 
-  // If not in localStorage, ask the server if there's an authenticated session
-  fetch('/api/auth/current-user', { credentials: 'include' })
+    // If not in localStorage, ask the server if there's an authenticated session
+    fetch('/api/auth/current-user', { credentials: 'include' })
       .then((res) => {
         if (!res.ok) throw new Error('Not authenticated');
         return res.json();
@@ -154,8 +154,8 @@ function App() {
             </ProtectedRoute>
           }
         />
-  {/* OAuth redirect landing page - stores user data then navigates to home */}
-  <Route path="/auth-success" element={<AuthSuccess />} />
+        {/* OAuth redirect landing page - stores user data then navigates to home */}
+        <Route path="/auth-success" element={<AuthSuccess />} />
         {/* Catch-all route for undefined paths */}
         <Route path="*" element={<NotLoggedIn />} />
       </Routes>
