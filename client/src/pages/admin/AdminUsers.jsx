@@ -33,6 +33,23 @@ export default function AdminUsers() {
     }
   };
 
+  const getUserRole = (user) => {
+    if (!user) return 'Student';
+
+    // admin flags are authoritative
+    if (user.admin) return 'Admin';
+
+    // check common role string fields or the first role in an array
+    const role = user.role;
+    if (typeof role === 'string') {
+      const r = role.toLowerCase();
+      return role.charAt(0).toUpperCase() + role.slice(1);
+    }
+
+    // default
+    return 'Student';
+  };
+
   const handleDeleteUser = async (userId) => {
     if (!confirm('Are you sure you want to delete this user?')) {
       return;
@@ -66,8 +83,7 @@ export default function AdminUsers() {
       <div className="right-side flex-1 min-h-screen bg-gray-50 dark:bg-gray-900 ml-64">
         <Header />
 
-        <div className="mt-4">
-        </div>
+        <div className="mt-4"></div>
 
         <main className="max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-28">
           <button
@@ -111,8 +127,9 @@ export default function AdminUsers() {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Classes
                       </th>
+
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Created At
+                        Role
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Actions
@@ -156,9 +173,7 @@ export default function AdminUsers() {
                               {user.classes ? JSON.parse(user.classes).length : 0}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                              {user.created_at
-                                ? new Date(user.created_at).toLocaleDateString()
-                                : 'N/A'}
+                              {getUserRole(user)}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                               <button
