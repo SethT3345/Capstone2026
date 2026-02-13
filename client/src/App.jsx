@@ -17,6 +17,7 @@ import AdminPage from './pages/admin/AdminPage.jsx';
 import AdminVerification from './pages/admin/AdminVerification.jsx';
 import AdminUsers from './pages/admin/AdminUsers.jsx';
 import AdminCourses from './pages/admin/AdminCourses.jsx';
+import AdminNotifications from './pages/admin/AdminNotifications.jsx';
 
 // Protected Route component
 
@@ -140,6 +141,16 @@ function App() {
             <ProtectedRoute>
               <AdminRoute>
                 <AdminCourses />
+              </AdminRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/notifications"
+          element={
+            <ProtectedRoute>
+              <AdminRoute>
+                <AdminNotifications />
               </AdminRoute>
             </ProtectedRoute>
           }
