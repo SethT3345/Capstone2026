@@ -6,15 +6,10 @@ export default function AdminVerification() {
   const [adminCode, setAdminCode] = useState('');
   const [message, setMessage] = useState('');
 
-  // If already verified, go straight to admin page
-  useEffect(() => {
-    if (localStorage.getItem('isAdmin') === 'true') {
-      navigate('/admin', { replace: true });
-    }
-  }, [navigate]);
-
   const handleVerify = async () => {
     const code = (adminCode || '').trim();
+    const cuser = JSON.parse(localStorage.getItem('user'))
+    const cuserid = cuser.id
 
     if (!code) {
       setMessage('Please enter an admin code.');
@@ -27,16 +22,20 @@ export default function AdminVerification() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ admin: code }),
+        body: JSON.stringify({ admin: code, user_id: cuserid }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
         // Successfully verified as admin
-        localStorage.setItem('isAdmin', 'true');
-        localStorage.setItem('adminData', JSON.stringify(data.admin));
         setMessage('Verified as admin.');
+        
+        // Update localStorage with the new user data that has admin = true
+        if (data.user) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
+        
         // SPA navigation, with a fallback forced redirect
         navigate('/admin', { replace: true });
         setTimeout(() => {

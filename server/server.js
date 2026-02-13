@@ -210,12 +210,18 @@ app.post("/api/checkAdmin", async (req, res) => {
   try {
     console.log('Received check admin request:', req.body);
     const admin = req.body.admin;
+    const user_id = req.body.user_id;
     
     // Validate inputs
     if (!admin) {
       return res.status(400).json({ error: "Admin code required" });
     }
     
+    if (!user_id) {
+      return res.status(400).json({ error: "User ID required" });
+    }
+    
+    // Check if admin code is valid
     const query = "SELECT * FROM admins WHERE id = $1";
     const result = await pool.query(query, [admin]);
 
@@ -225,10 +231,37 @@ app.post("/api/checkAdmin", async (req, res) => {
       return res.status(401).json({ error: "Invalid Admin Code" });
     }
     
-    // Send success response with admin data
+    // Admin code is valid, now make the user an admin
+    console.log('Valid admin code, creating admin for user:', user_id);
+    
+    // Check if user exists
+    const checkUserQuery = 'SELECT * FROM users WHERE id = $1';
+    const userCheck = await pool.query(checkUserQuery, [user_id]);
+
+    if (userCheck.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Check if user is already an admin
+    if (userCheck.rows[0].admin === true) {
+      return res.status(200).json({ 
+        message: "User is already an admin", 
+        admin: result.rows[0],
+        user: userCheck.rows[0]
+      });
+    }
+
+    // Make the user an admin
+    const createAdminQuery = 'UPDATE users SET admin = true WHERE id = $1 RETURNING *';
+    const adminUser = await pool.query(createAdminQuery, [user_id]);
+    
+    console.log('Admin created successfully:', adminUser.rows[0]);
+    
+    // Send success response with admin data and updated user
     res.status(200).json({ 
-      message: "Admin verified successfully", 
-      admin: result.rows[0] 
+      message: "Admin verified and user promoted to admin successfully", 
+      admin: result.rows[0],
+      user: adminUser.rows[0]
     });
 
   } catch (error) {
@@ -236,6 +269,7 @@ app.post("/api/checkAdmin", async (req, res) => {
     res.status(500).json({ error: "Failed to get admin code", details: error.message });
   }
 })
+
 
 
 app.post("/api/enroll", async (req, res) => {
@@ -631,6 +665,7 @@ app.get('/api/auth/current-user', async (req, res) => {
     res.status(401).json({ error: 'Not authenticated' });
   }
 });
+
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
