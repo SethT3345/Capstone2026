@@ -3,15 +3,93 @@ import React from 'react';
 export default function MyLearningCard({ course }) {
   const [loading, setLoading] = React.useState(false);
   const [done, setDone] = React.useState(false);
+  const [verified, setVerified] = React.useState(false);
 
-  const handleComplete = () => {
+  React.useEffect(() => {
+    // Check if completion request already exists when component mounts
+    const checkCompletionStatus = async () => {
+      try {
+        const userString = localStorage.getItem('user');
+        if (!userString) return;
+        
+        const user = JSON.parse(userString);
+        
+        const response = await fetch('/api/checkCompletion', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            course_id: course.id,
+            user_id: user.id,
+          }),
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.exists) {
+          // Completion request exists
+          setDone(true);
+          // Check if it's been verified by admin
+          if (data.completion && data.completion.admin_verified) {
+            setVerified(true);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking completion status:', error);
+      }
+    };
+    
+    checkCompletionStatus();
+  }, [course.id]);
+
+  // Don't render the card if it's been verified
+  if (verified) {
+    return null;
+  }
+
+  const handleComplete = async () => {
     if (loading || done) return;
     setLoading(true);
-    // simulate async work (e.g., API call)
-    setTimeout(() => {
+    
+    try {
+      // Get user from localStorage
+      const userString = localStorage.getItem('user');
+      if (!userString) {
+        alert('Please log in to complete courses');
+        setLoading(false);
+        return;
+      }
+      
+      const user = JSON.parse(userString);
+      
+      // Send completion request to server
+      const response = await fetch('/api/ucc', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          course_id: course.id,
+          user_id: user.id,
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        console.log('Completion request sent:', data);
+        setDone(true);
+      } else {
+        console.error('Error sending completion request:', data.error);
+        alert(data.error || 'Failed to send completion request');
+      }
+    } catch (error) {
+      console.error('Error completing course:', error);
+      alert('Failed to send completion request. Please try again.');
+    } finally {
       setLoading(false);
-      setDone(true);
-    }, 900);
+    }
   };
 
   const initials = (course.instructor || '')
@@ -85,7 +163,7 @@ export default function MyLearningCard({ course }) {
                   clipRule="evenodd"
                 />
               </svg>
-              Completed
+              Waiting for admin verification...
             </>
           ) : (
             'Complete'

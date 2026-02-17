@@ -7,6 +7,7 @@ import Header from '../components/Header.jsx';
 export default function Profile() {
   const [user, setUser] = useState(null);
   const [numClasses, setNumClasses] = useState(0);
+  const [completedClasses, setCompletedClasses] = useState(0);
   const cuser = localStorage.getItem('user');
 
   useEffect(() => {
@@ -41,6 +42,32 @@ export default function Profile() {
 
     fetchClassCount();
   }, [user]); // Add user as dependency to re-run when user data is available
+
+  useEffect(() => {
+    // Fetch number of completed (admin verified) classes
+    const fetchCompletedCount = async () => {
+      if (!user || !user.id) return;
+
+      try {
+        const response = await fetch('/api/getCompletedCount', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ user_id: user.id }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          setCompletedClasses(data.completedCount);
+        }
+      } catch (error) {
+        console.error('Error fetching completed count:', error);
+      }
+    };
+
+    fetchCompletedCount();
+  }, [user]);
 
   return (
     <>
@@ -170,7 +197,9 @@ export default function Profile() {
                   <div className="flex items-center justify-between p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
                     <div>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Completed Courses</p>
-                      <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">0</p>
+                      <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                        {completedClasses}
+                      </p>
                     </div>
                     <svg
                       className="w-12 h-12 text-indigo-300"
