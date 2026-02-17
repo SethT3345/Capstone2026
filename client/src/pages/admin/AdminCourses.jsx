@@ -223,7 +223,7 @@ export default function AdminCourses() {
                       Title
                     </th>
                     <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 dark:text-gray-300">
-                      Instructor
+                      Tuition
                     </th>
                     <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 dark:text-gray-300">
                       Capacity
@@ -262,36 +262,40 @@ export default function AdminCourses() {
                       </td>
                     </tr>
                   ) : (
-                    courses.map((course) => (
-                      <tr key={course.id || course.course_id}>
-                        <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
-                          {course.id || course.course_id}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
-                          {course.course_title || course.title}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
-                          {course.instructor}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
-                          {course.capacity || course.seats}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-right">
-                          <button
-                            onClick={() => openEdit(course)}
-                            className="mr-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(course.id)}
-                            className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))
+                    courses.map((course) => {
+                      const tuition =
+                        course.tuition_cost || course.tuitionCost || course.tuition || 0;
+                      return (
+                        <tr key={course.id || course.course_id}>
+                          <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
+                            {course.id || course.course_id}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
+                            {course.course_title || course.title}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
+                            {`$${Number(tuition).toFixed(2)}`}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
+                            {course.capacity || course.seats}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-right">
+                            <button
+                              onClick={() => openEdit(course)}
+                              className="mr-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDelete(course.id)}
+                              className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
