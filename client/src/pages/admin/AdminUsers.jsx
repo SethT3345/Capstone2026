@@ -6,6 +6,15 @@ export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [form, setForm] = useState({
+    username: '',
+    email: '',
+    password: '',
+    role: 'student',
+    admin: false,
+  });
 
   // Get current user from localStorage
   const cuser = JSON.parse(localStorage.getItem('user') || '{}');
@@ -93,10 +102,25 @@ export default function AdminUsers() {
             ← Back to Admin Dashboard
           </button>
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Manage Users</h1>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
-              Add, edit, or remove users here.
-            </p>
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Manage Users</h1>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                  Add, edit, or remove users here.
+                </p>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  aria-label="Create User"
+                  onClick={() => setIsModalOpen(true)}
+                  className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                >
+                  + Create User
+                </button>
+              </div>
+            </div>
 
             {/* Loading State */}
             {loading && (
@@ -193,6 +217,94 @@ export default function AdminUsers() {
               </div>
             )}
           </div>
+
+          {isModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center">
+              <div
+                className="absolute inset-0 bg-black opacity-40"
+                onClick={() => setIsModalOpen(false)}
+              ></div>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  console.log('User form submit (UI-only):', form);
+                  setIsModalOpen(false);
+                  // keep UI-only: no API calls here
+                }}
+                className="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md mx-4 p-6 z-10"
+              >
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                  Create User
+                </h2>
+
+                <label className="block mb-2 text-sm text-gray-600 dark:text-gray-300">
+                  Username
+                </label>
+                <input
+                  name="username"
+                  value={form.username}
+                  onChange={(e) => setForm((p) => ({ ...p, username: e.target.value }))}
+                  className="w-full px-3 py-2 mb-3 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  required
+                />
+
+                <label className="block mb-2 text-sm text-gray-600 dark:text-gray-300">Email</label>
+                <input
+                  name="email"
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+                  className="w-full px-3 py-2 mb-3 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                />
+
+                <label className="block mb-2 text-sm text-gray-600 dark:text-gray-300">Role</label>
+                <select
+                  name="role"
+                  value={form.role}
+                  onChange={(e) => setForm((p) => ({ ...p, role: e.target.value }))}
+                  className="w-full px-3 py-2 mb-3 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                >
+                  <option value="student">Student</option>
+                  <option value="admin">Admin</option>
+                </select>
+
+                <label className="block mb-2 text-sm text-gray-600 dark:text-gray-300">
+                  Password
+                </label>
+                <input
+                  name="password"
+                  type="password"
+                  value={form.password}
+                  onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
+                  className="w-full px-3 py-2 mb-3 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                />
+
+                <label className="flex items-center text-sm text-gray-600 dark:text-gray-300 mb-4">
+                  <input
+                    type="checkbox"
+                    checked={form.admin}
+                    onChange={(e) => setForm((p) => ({ ...p, admin: e.target.checked }))}
+                    className="mr-2"
+                  />
+                  Grant admin privileges
+                </label>
+
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="mr-2 px-4 py-2 rounded border"
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded">
+                    Create
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
         </main>
       </div>
     </div>
