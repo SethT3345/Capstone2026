@@ -31,6 +31,21 @@ const app = express();
 // Middleware to parse JSON request bodies
 app.use(express.json());
 
+// CORS middleware to allow requests from frontend
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  
+  next();
+});
+
 // Session configuration (add BEFORE passport initialization)
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-development-secret-key-change-in-production',
@@ -342,7 +357,7 @@ app.post("/api/enroll", async (req, res) => {
   }
 })
 
-//get how many classes a user has enrolled in
+//get how many classes a user has enrolled in (excluding completed/verified ones)
 app.post('/api/numOfClasses', async (req, res) => {
   try {
     const { user_id } = req.body;
@@ -362,19 +377,36 @@ app.post('/api/numOfClasses', async (req, res) => {
     }
 
     const classes = result.rows[0].classes;
-    let numClasses = 0;
+    let classesArray = [];
 
     // Handle different storage formats
     if (typeof classes === 'string') {
       try {
-        const classesArray = JSON.parse(classes);
-        numClasses = classesArray.length;
+        classesArray = JSON.parse(classes);
       } catch (e) {
-        numClasses = 0;
+        classesArray = [];
       }
     } else if (Array.isArray(classes)) {
-      numClasses = classes.length;
+      classesArray = classes;
     }
+
+    // Get list of completed (verified) course IDs for this user
+    const completedQuery = `
+      SELECT course_id 
+      FROM completed_classes 
+      WHERE user_id = $1 AND admin_verified = true
+    `;
+    const completedResult = await pool.query(completedQuery, [user_id]);
+    const completedCourseIds = completedResult.rows.map(row => row.course_id.toString());
+
+    // Filter out completed courses from enrolled courses
+    // Convert both to strings for comparison
+    const activeCourses = classesArray.filter(courseId => !completedCourseIds.includes(courseId.toString()));
+    const numClasses = activeCourses.length;
+
+    console.log('Total enrolled:', classesArray.length);
+    console.log('Completed course IDs:', completedCourseIds);
+    console.log('Active courses:', numClasses);
 
     res.status(200).json({ 
       numClasses: numClasses,
@@ -728,6 +760,220 @@ app.get('/api/auth/current-user', async (req, res) => {
   }
 });
 
+
+//admin class verification
+app.post('/api/ucc', async (req, res) => {
+  try {
+    console.log('Received class completion request:', req.body);
+    
+    const course_id = req.body.course_id;
+    const user_id = req.body.user_id;
+    
+    // Validate required fields
+    if (!course_id || !user_id) {
+      return res.status(400).json({ error: "Course ID and User ID are required" });
+    }
+    
+    // Check if user has already submitted a completion request for this course
+    const checkQuery = "SELECT * FROM completed_classes WHERE user_id = $1 AND course_id = $2";
+    const existingRequest = await pool.query(checkQuery, [user_id, course_id]);
+    
+    if (existingRequest.rows.length > 0) {
+      return res.status(400).json({ 
+        error: "You have already submitted a completion request for this course",
+        existing: existingRequest.rows[0]
+      });
+    }
+    
+    const completion_id = Math.floor(10000 + Math.random() * 90000);
+    const admin_verified = false; 
+    
+    // Insert completion request into database
+    const query = `
+      INSERT INTO completed_classes (completion_id, course_id, user_id, admin_verified, created_at, updated_at) 
+      VALUES ($1, $2, $3, $4, NOW(), NOW()) 
+      RETURNING *
+    `;
+    
+    const values = [
+      completion_id,
+      course_id,
+      user_id,
+      admin_verified
+    ];
+    
+    const result = await pool.query(query, values);
+    
+    console.log('Class completion request created successfully:', result.rows[0]);
+    
+    res.status(201).json({ 
+      message: "Class completion request sent successfully", 
+      completion: result.rows[0] 
+    });
+    
+  } catch (error) {
+    console.error('Error sending class completion request:', error);
+    res.status(500).json({ error: 'Failed to send class completion request', details: error.message });
+  }
+})
+
+// Check if a completion request exists for a specific course and user
+app.post('/api/checkCompletion', async (req, res) => {
+  try {
+    console.log('Checking completion status:', req.body);
+    
+    const { course_id, user_id } = req.body;
+    
+    // Validate required fields
+    if (!course_id || !user_id) {
+      return res.status(400).json({ error: "Course ID and User ID are required" });
+    }
+    
+    // Check if completion request exists
+    const query = "SELECT * FROM completed_classes WHERE user_id = $1 AND course_id = $2";
+    const result = await pool.query(query, [user_id, course_id]);
+    
+    if (result.rows.length > 0) {
+      // Completion request exists
+      res.status(200).json({ 
+        exists: true,
+        completion: result.rows[0]
+      });
+    } else {
+      // No completion request found
+      res.status(200).json({ 
+        exists: false
+      });
+    }
+    
+  } catch (error) {
+    console.error('Error checking completion status:', error);
+    res.status(500).json({ error: 'Failed to check completion status', details: error.message });
+  }
+})
+
+app.post('/api/getCompletions', async (req, res) => {
+  try {
+    console.log('Fetching unverified completions...');
+    
+    // First, ensure the table exists
+    const createTableQuery = `
+      CREATE TABLE IF NOT EXISTS completed_classes (
+        completion_id INTEGER PRIMARY KEY,
+        course_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        admin_verified BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+    `;
+    
+    await pool.query(createTableQuery);
+    console.log('completed_classes table ensured');
+    
+    // Get all unverified completions with usernames and course titles using JOINs
+    const query = `
+      SELECT 
+        cc.completion_id,
+        cc.course_id,
+        cc.user_id,
+        cc.admin_verified,
+        cc.created_at,
+        cc.updated_at,
+        u.username as title,
+        c.course_title as body
+      FROM completed_classes cc
+      LEFT JOIN users u ON cc.user_id::text = u.id::text
+      LEFT JOIN classes c ON cc.course_id::text = c.id::text
+      WHERE cc.admin_verified = false
+    `;
+    
+    const result = await pool.query(query);
+    
+    console.log(`Found ${result.rows.length} unverified completions`);
+    console.log('Completions data:', JSON.stringify(result.rows, null, 2));
+    
+    res.status(200).json(result.rows);
+    
+  } catch (error) {
+    console.error('Error fetching completions:', error);
+    console.error('Full error details:', error.stack);
+    res.status(500).json({ error: 'failed to get completions', details: error.message });
+  }
+})
+
+app.post('/api/adminVerify', async (req, res) => {
+  try {
+    console.log('Received admin verify request:', req.body);
+    
+    const { completion_id } = req.body;
+    
+    // Validate input
+    if (!completion_id) {
+      return res.status(400).json({ error: "Completion ID is required" });
+    }
+    
+    // Update the completion request to mark as verified
+    const query = `
+      UPDATE completed_classes 
+      SET admin_verified = true, updated_at = NOW() 
+      WHERE completion_id = $1 
+      RETURNING *
+    `;
+    
+    const result = await pool.query(query, [completion_id]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Completion request not found" });
+    }
+    
+    console.log('Completion verified successfully:', result.rows[0]);
+    
+    res.status(200).json({ 
+      message: "Class completion verified successfully", 
+      completion: result.rows[0] 
+    });
+    
+  } catch (error) {
+    console.error('Error verifying completion:', error);
+    res.status(500).json({ error: 'Failed to verify completion', details: error.message });
+  }
+})
+
+app.post('/api/getCompletedCount', async (req, res) => {
+  try {
+    console.log('Fetching completed classes count:', req.body);
+    
+    const { user_id } = req.body;
+    
+    // Validate input
+    if (!user_id) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+    
+    // Count how many classes have been completed and verified for this user
+    const query = `
+      SELECT COUNT(*) as count 
+      FROM completed_classes 
+      WHERE user_id = $1 AND admin_verified = true
+    `;
+    
+    const result = await pool.query(query, [user_id]);
+    
+    const completedCount = parseInt(result.rows[0].count) || 0;
+    
+    console.log(`User ${user_id} has ${completedCount} completed classes`);
+    
+    res.status(200).json({ 
+      completedCount: completedCount,
+      user_id: user_id
+    });
+    
+  } catch (error) {
+    console.error('Error fetching completed count:', error);
+    res.status(500).json({ error: 'Failed to get completed count', details: error.message });
+  }
+})
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
