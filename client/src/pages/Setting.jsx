@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import DarkModeToggle from '../components/DarkModeToggle';
@@ -10,6 +10,33 @@ export default function Settings() {
 
   const [adminCode, setAdminCode] = useState('');
   const [message, setMessage] = useState('');
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [currentUser, setCurrentUser] = useState(null);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+
+  useEffect(() => {
+    const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+    if (userStr) {
+      try {
+        const u = JSON.parse(userStr);
+        setCurrentUser(u);
+        setProfileForm({
+          username: u.username || '',
+          email: u.email || u.username || '',
+          password: '',
+          confirmPassword: '',
+        });
+      } catch (e) {
+        // ignore parse errors
+      }
+    }
+  }, []);
 
   const handleVerifyAdmin = (e) => {
     e.preventDefault();
@@ -137,7 +164,7 @@ export default function Settings() {
 
           <div className="space-y-3">
             <button
-              onClick={() => navigate('/profile')}
+              onClick={() => setIsEditingProfile(true)}
               className="w-full px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-between"
             >
               <span>Edit Profile</span>
@@ -151,18 +178,175 @@ export default function Settings() {
               </svg>
             </button>
 
-            <button className="w-full px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-between">
-              <span>Change Password</span>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
+            {isEditingProfile && (
+              <div className="mt-4 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">
+                  Edit Profile
+                </h3>
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
 
+                    // validate password confirmation
+                    if (
+                      profileForm.password &&
+                      profileForm.password !== profileForm.confirmPassword
+                    ) {
+                      // Show a popup alert and also set the inline message
+                      alert('New password and confirmation do not match.');
+                      setMessage('New password and confirmation do not match.');
+                      return;
+                    }
+
+                    const payload = {
+                      user_id: currentUser?.id,
+                      username: profileForm.username,
+                      email: profileForm.email,
+                      password: profileForm.password || undefined,
+                    };
+
+                    // Try updating backend, but always update localStorage
+                    try {
+                      const res = await fetch('/api/updateUser', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                      });
+                      if (res.ok) {
+                        const data = await res.json();
+                        // if server returns updated user, use it
+                        if (data.user) {
+                          localStorage.setItem('user', JSON.stringify(data.user));
+                          setCurrentUser(data.user);
+                        } else {
+                          const updated = {
+                            ...(currentUser || {}),
+                            username: profileForm.username,
+                            email: profileForm.email,
+                          };
+                          localStorage.setItem('user', JSON.stringify(updated));
+                          setCurrentUser(updated);
+                        }
+                        setMessage('Profile updated successfully.');
+                      } else {
+                        const err = await res.json().catch(() => ({}));
+                        setMessage(
+                          err.error || 'Failed to update profile on server; saved locally.'
+                        );
+                        const updated = {
+                          ...(currentUser || {}),
+                          username: profileForm.username,
+                          email: profileForm.email,
+                        };
+                        localStorage.setItem('user', JSON.stringify(updated));
+                        setCurrentUser(updated);
+                      }
+                    } catch (err) {
+                      console.warn('Update API failed, saved locally:', err);
+                      const updated = {
+                        ...(currentUser || {}),
+                        username: profileForm.username,
+                        email: profileForm.email,
+                      };
+                      localStorage.setItem('user', JSON.stringify(updated));
+                      setCurrentUser(updated);
+                      setMessage('Saved locally (server unreachable).');
+                    }
+
+                    // clear password fields and hide editor
+                    setProfileForm((p) => ({ ...p, password: '', confirmPassword: '' }));
+                    setIsEditingProfile(false);
+                  }}
+                >
+                  <div className="mb-2">
+                    <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
+                      Username
+                    </label>
+                    <input
+                      value={profileForm.username}
+                      onChange={(e) => setProfileForm((p) => ({ ...p, username: e.target.value }))}
+                      className="w-full px-3 py-2 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
+                      Email
+                    </label>
+                    <input
+                      value={profileForm.email}
+                      onChange={(e) => setProfileForm((p) => ({ ...p, email: e.target.value }))}
+                      className="w-full px-3 py-2 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
+                      Current Password
+                    </label>
+                    {currentUser && currentUser.password ? (
+                      <div className="flex items-center">
+                        <input
+                          type={showCurrentPassword ? 'text' : 'password'}
+                          value={currentUser.password}
+                          readOnly
+                          className="w-full px-3 py-2 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowCurrentPassword((s) => !s)}
+                          className="ml-2 px-3 py-2 rounded border"
+                          aria-label={showCurrentPassword ? 'Hide password' : 'Show password'}
+                        >
+                          {showCurrentPassword ? 'Hide' : 'Show'}
+                        </button>
+                      </div>
+                    ) : (
+                      <input
+                        type="text"
+                        value="Not available"
+                        readOnly
+                        className="w-full px-3 py-2 rounded bg-gray-50 dark:bg-gray-700 text-gray-400"
+                      />
+                    )}
+                  </div>
+                  <div className="mb-3">
+                    <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
+                      New Password (optional)
+                    </label>
+                    <input
+                      type="password"
+                      value={profileForm.password}
+                      onChange={(e) => setProfileForm((p) => ({ ...p, password: e.target.value }))}
+                      className="w-full px-3 py-2 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
+                      Confirm Password
+                    </label>
+                    <input
+                      type="password"
+                      value={profileForm.confirmPassword}
+                      onChange={(e) =>
+                        setProfileForm((p) => ({ ...p, confirmPassword: e.target.value }))
+                      }
+                      className="w-full px-3 py-2 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    />
+                  </div>
+                  <div className="flex gap-2 justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingProfile(false)}
+                      className="px-3 py-2 rounded border"
+                    >
+                      Cancel
+                    </button>
+                    <button type="submit" className="px-3 py-2 bg-purple-600 text-white rounded">
+                      Save
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
             <button
               onClick={handleDeleteAccount}
               className="w-full px-4 py-3 text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors flex items-center justify-between"

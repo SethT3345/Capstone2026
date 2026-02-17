@@ -1,12 +1,13 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar.jsx';
 import Header from '../components/Header.jsx';
 
 export default function Profile() {
   const [user, setUser] = useState(null);
   const [numClasses, setNumClasses] = useState(0);
+  const navigate = useNavigate();
   const cuser = localStorage.getItem('user');
 
   useEffect(() => {
@@ -79,7 +80,10 @@ export default function Profile() {
                 </div>
 
                 {/* Edit Button */}
-                <button className="px-6 py-3 bg-white text-purple-600 rounded-lg font-semibold hover:bg-gray-100 transition duration-200 shadow-md">
+                <button
+                  onClick={() => navigate('/settings')}
+                  className="px-6 py-3 bg-white text-purple-600 rounded-lg font-semibold hover:bg-gray-100 transition duration-200 shadow-md"
+                >
                   Edit Profile
                 </button>
               </div>
