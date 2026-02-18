@@ -53,6 +53,12 @@ export default function AdminVerification() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+      <button
+            onClick={() => window.history.back()}
+            className="inline-flex items-center px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white mb-4"
+          >
+            ← Back to Admin Dashboard
+          </button>
       <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <h1 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Admin Verification</h1>
         <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
