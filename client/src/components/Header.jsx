@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function Header({ onSearch, searching, searchError }) {
@@ -6,22 +6,99 @@ export default function Header({ onSearch, searching, searchError }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const debounceRef = useRef(null);
+  const inputRef = useRef(null);
+  const focusAfterNavRef = useRef(false);
 
   const handleSearch = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
 
-    // If not on courses page, navigate to it first
-    if (location.pathname !== '/courses') {
+    const path = location.pathname || '/';
+
+    // Admin pages: keep on the admin route and call the passed handler (pages will provide it)
+    if (path.startsWith('/admin')) {
+      if (onSearch) onSearch(searchQuery);
+      return;
+    }
+
+    // If already on courses page, call handler if provided
+    if (path === '/courses') {
+      if (onSearch) {
+        onSearch(searchQuery);
+      }
+      return;
+    }
+
+    // Otherwise (any non-admin page), navigate to /courses and attach the query as a param
+    // Set a flag so when Header remounts on /courses we focus the input automatically
+    focusAfterNavRef.current = true;
+    navigate(`/courses?q=${encodeURIComponent(searchQuery)}`);
+  };
+
+  // Trigger search on every key press (debounced)
+  useEffect(() => {
+    // Clear previous timer
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    // If empty query, treat as a clear: tell the page to reset or navigate to /courses
+    if (!searchQuery || searchQuery.trim() === '') {
+      const path = location.pathname || '/';
+      if (path.startsWith('/admin')) {
+        if (onSearch) onSearch('');
+        return;
+      }
+      if (path === '/courses') {
+        if (onSearch) onSearch('');
+        return;
+      }
+      // navigate to /courses without query to show all courses
+      focusAfterNavRef.current = true;
       navigate('/courses');
+      return;
     }
 
-    // Perform the search
-    if (onSearch) {
-      onSearch(searchQuery);
-    } else {
-      // Fallback for when Header is used on other pages
-      console.log('Searching for:', searchQuery);
+    debounceRef.current = setTimeout(() => {
+      const path = location.pathname || '/';
+      if (path.startsWith('/admin')) {
+        if (onSearch) onSearch(searchQuery);
+        return;
+      }
+      if (path === '/courses') {
+        if (onSearch) onSearch(searchQuery);
+        return;
+      }
+      navigate(`/courses?q=${encodeURIComponent(searchQuery)}`);
+    }, 450);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery]);
+
+  // Prefill searchQuery from ?q when landing on /courses
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get('q') || '';
+    if (location.pathname === '/courses') {
+      if (q !== searchQuery) setSearchQuery(q);
+      // If this navigation was initiated by the header, focus the input so the user can keep typing
+      if (focusAfterNavRef.current && inputRef.current) {
+        // small timeout to ensure the element is painted
+        setTimeout(() => inputRef.current.focus(), 20);
+        focusAfterNavRef.current = false;
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search, location.pathname]);
+
+  // Choose placeholder text by route
+  const getPlaceholder = () => {
+    const p = location.pathname || '/';
+    if (p.startsWith('/admin/users')) return 'Search users by name or email...';
+    if (p.startsWith('/admin/courses')) return 'Search courses...';
+    if (p === '/courses') return 'Search your courses here...';
+    return 'Search courses...';
   };
 
   return (
@@ -146,6 +223,7 @@ export default function Header({ onSearch, searching, searchError }) {
                 />
               </svg>
               <input
+                ref={inputRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -155,9 +233,8 @@ export default function Header({ onSearch, searching, searchError }) {
                     handleSearch(e);
                   }
                 }}
-                placeholder="Search your courses here..."
+                placeholder={getPlaceholder()}
                 className="w-full h-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:bg-white dark:focus:bg-gray-600 transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm md:text-base"
-                disabled={searching}
               />
             </div>
 
