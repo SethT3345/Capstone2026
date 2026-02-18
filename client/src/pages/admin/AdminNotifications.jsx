@@ -28,7 +28,7 @@ export default function AdminNotifications() {
 
       const data = await response.json();
       console.log('Fetched completions:', data);
-      
+
       // Data already has title (username) and body (course_title) from server
       setNotifications(data);
     } catch (error) {
@@ -56,7 +56,7 @@ export default function AdminNotifications() {
 
       const data = await response.json();
       console.log('Completion verified:', data);
-      
+
       // Refresh the completions list
       fetchCompletions();
     } catch (error) {
@@ -66,13 +66,13 @@ export default function AdminNotifications() {
   };
 
   return (
-    <div className="flex">
+    <div className="flex w-full max-w-full overflow-x-hidden">
       <Navbar />
 
-      <div className="right-side flex-1 min-h-screen bg-gray-50 dark:bg-gray-900 ml-64">
+      <div className="right-side flex-1 min-w-0 min-h-screen bg-gray-50 dark:bg-gray-900 md:ml-64">
         <Header />
 
-        <main className="max-w-4xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-28">
+        <main className="w-full max-w-4xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-6 md:pt-28">
           <button
             onClick={() => window.history.back()}
             className="inline-flex items-center px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white mb-4"
@@ -93,9 +93,13 @@ export default function AdminNotifications() {
 
             <div className="space-y-3">
               {loading ? (
-                <p className="text-center text-gray-600 dark:text-gray-300 py-8">Loading completion requests...</p>
+                <p className="text-center text-gray-600 dark:text-gray-300 py-8">
+                  Loading completion requests...
+                </p>
               ) : notifications.length === 0 ? (
-                <p className="text-center text-gray-600 dark:text-gray-300 py-8">No pending completion requests.</p>
+                <p className="text-center text-gray-600 dark:text-gray-300 py-8">
+                  No pending completion requests.
+                </p>
               ) : (
                 notifications.map((n) => (
                   <div

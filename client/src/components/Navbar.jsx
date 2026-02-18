@@ -1,24 +1,41 @@
 import react from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const [isMd, setIsMd] = useState(false);
+
+  useEffect(() => {
+    const m = window.matchMedia('(min-width: 768px)');
+    const update = (e) => setIsMd(e.matches ?? m.matches);
+    // Set initial
+    setIsMd(m.matches);
+    // Prefer modern API but fall back
+    if (m.addEventListener) m.addEventListener('change', update);
+    else m.addListener(update);
+    return () => {
+      if (m.removeEventListener) m.removeEventListener('change', update);
+      else m.removeListener(update);
+    };
+  }, []);
 
   const handleLogout = () => {
     navigate('/login');
   };
 
+  if (!isMd) return null;
+
   return (
     <>
-      <div className="fixed left-0 top-0 h-screen w-64 bg-linear-to-b from-purple-50 via-white to-white dark:from-gray-800 dark:via-gray-900 dark:to-gray-900 shadow-2xl flex flex-col p-6">
+      <div className="fixed left-0 top-0 h-screen w-64 bg-linear-to-b from-purple-50 via-white to-white dark:from-gray-800 dark:via-gray-900 dark:to-gray-900 shadow-2xl md:flex md:flex-col p-6">
         {/* Header */}
         <div className="mb-8 pb-6 border-b border-purple-100 dark:border-gray-700">
           <img
             src="/Logo.png"
             alt="Logo"
-            className="w-full h-auto mb-2 object-cover object-center"
-            style={{ objectFit: 'contain', maxHeight: '120px' }}
+            className="w-full h-auto mb-2 object-cover object-center max-h-28"
+            style={{ objectFit: 'contain' }}
           />
           <p className="text-xs text-gray-500 dark:text-gray-400">Course Manager</p>
         </div>

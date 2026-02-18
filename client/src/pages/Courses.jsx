@@ -76,14 +76,14 @@ export default function Courses() {
 
   return (
     <>
-      <div className="flex">
+      <div className="flex w-full max-w-full overflow-x-hidden">
         <Navbar />
-        <div className="right-side flex-1 min-h-screen bg-gray-100 dark:bg-gray-900 ml-64">
+        <div className="right-side flex-1 min-w-0 min-h-screen bg-gray-100 dark:bg-gray-900 md:ml-64">
           {/* Header */}
           <Header onSearch={handleSearch} searching={searching} searchError={searchError} />
 
           {/* Main Content */}
-          <main className="pt-28 max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+          <main className="w-full max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-6 md:pt-28">
             {/* Search Results Section */}
             {searchResults && (
               <div className="mb-8">

@@ -72,19 +72,19 @@ export default function Profile() {
 
   return (
     <>
-      <div className="flex">
+      <div className="flex w-full max-w-full overflow-x-hidden">
         <Navbar />
-        <div className="right-side flex-1 min-h-screen bg-gray-100 dark:bg-gray-900 ml-64">
+        <div className="right-side flex-1 min-w-0 min-h-screen bg-gray-100 dark:bg-gray-900 md:ml-64">
           {/* Header */}
           <Header />
 
           {/* Main Content */}
-          <main className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-28">
+          <main className="w-full max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-6 md:pt-28">
             {/* Profile Header Section */}
-            <div className="bg-linear-to-r from-purple-600 to-indigo-600 dark:from-purple-700 dark:to-indigo-700 rounded-lg shadow-lg p-8 mb-6">
-              <div className="flex items-center gap-6">
+            <div className="bg-linear-to-r from-purple-600 to-indigo-600 dark:from-purple-700 dark:to-indigo-700 rounded-lg shadow-lg p-4 sm:p-8 mb-6 overflow-hidden">
+              <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                 {/* Profile Avatar */}
-                <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg">
+                <div className="w-16 h-16 sm:w-24 sm:h-24 bg-white rounded-full flex items-center justify-center shadow-lg shrink-0">
                   <svg
                     className="w-16 h-16 text-purple-600"
                     fill="currentColor"

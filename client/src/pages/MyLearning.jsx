@@ -6,11 +6,11 @@ import EnrolledCourses from '../components/EnrolledCourses.jsx';
 
 export default function MyLearning() {
   return (
-    <div className="flex">
+    <div className="flex w-full max-w-full overflow-x-hidden">
       <Navbar />
-      <div className="right-side flex-1 min-h-screen bg-gray-100 dark:bg-gray-900 ml-64">
+      <div className="right-side flex-1 min-w-0 min-h-screen bg-gray-100 dark:bg-gray-900 md:ml-64">
         <Header />
-        <main className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-28">
+        <main className="w-full max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-6 md:pt-28">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
             <div className="flex items-center justify-between gap-4">
               <div>
