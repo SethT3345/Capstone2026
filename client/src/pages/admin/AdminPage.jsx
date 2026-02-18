@@ -3,23 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import Header from '../../components/Header';
 import Button from '../../components/Button';
-import { getUnreadCount, seedIfEmpty } from '../../utils/notificationStore';
-
 export default function AdminPage() {
   const navigate = useNavigate();
-  const [unread, setUnread] = useState(0);
-
-  useEffect(() => {
-    seedIfEmpty();
-    setUnread(getUnreadCount());
-
-    function onUpdate() {
-      setUnread(getUnreadCount());
-    }
-
-    window.addEventListener('notifications-updated', onUpdate);
-    return () => window.removeEventListener('notifications-updated', onUpdate);
-  }, []);
+  // Notifications removed — no local unread count.
 
   return (
     <>
@@ -68,11 +54,7 @@ export default function AdminPage() {
                 </svg>
                 <span className="hidden sm:inline text-sm">Notifications</span>
 
-                {unread > 0 && (
-                  <span className="absolute -top-2 -right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
-                    {unread}
-                  </span>
-                )}
+                {/* notification badge removed */}
               </Button>
             </div>
           </main>
