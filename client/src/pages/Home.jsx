@@ -33,18 +33,20 @@ export default function Home() {
 
   return (
     <>
-      <div className="flex">
+      <div className="flex w-full max-w-full overflow-x-hidden">
         <Navbar />
-        <div className="right-side flex-1 min-h-screen bg-gray-100 dark:bg-gray-900 ml-64">
+        <div className="right-side flex-1 min-w-0 min-h-screen bg-gray-100 dark:bg-gray-900 md:ml-64">
           {/* Header */}
           <Header />
 
           {/* Main Content */}
-          <main className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-28">
+          <main className="w-full max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-6 md:pt-28">
             {/* Welcome Banner */}
-            <div className="bg-linear-to-r from-purple-600 to-indigo-600 dark:from-purple-700 dark:to-indigo-700 rounded-lg shadow-lg p-8 mb-8 text-white">
-              <h1 className="text-4xl font-bold mb-4">Welcome Back! 👋</h1>
-              <p className="text-xl text-purple-100">
+            <div className="bg-linear-to-r from-purple-600 to-indigo-600 dark:from-purple-700 dark:to-indigo-700 rounded-lg shadow-lg p-4 sm:p-8 mb-8 text-white overflow-hidden">
+              <h1 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-4 wrap-break-word">
+                Welcome Back! 👋
+              </h1>
+              <p className="text-base sm:text-xl text-purple-100 wrap-break-word">
                 Continue your learning journey and explore new courses
               </p>
             </div>
@@ -171,7 +173,7 @@ export default function Home() {
 
                     return (
                       <>
-                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <table className="w-full table-auto divide-y divide-gray-200 dark:divide-gray-700">
                           <thead>
                             <tr>
                               <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
@@ -203,7 +205,7 @@ export default function Home() {
                                   {c.instructor || '—'}
                                 </td>
                                 <td className="px-4 py-3 align-middle text-sm">
-                                  <div className="w-36 bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                                  <div className="w-full max-w-36 bg-gray-100 dark:bg-gray-700 rounded-full h-2">
                                     <div
                                       className="bg-purple-600 h-2 rounded-full"
                                       style={{ width: `${c.progress || 0}%` }}

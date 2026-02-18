@@ -86,15 +86,15 @@ export default function AdminUsers() {
   };
 
   return (
-    <div className="flex">
+    <div className="flex w-full max-w-full overflow-x-hidden">
       <Navbar />
 
-      <div className="right-side flex-1 min-h-screen bg-gray-50 dark:bg-gray-900 ml-64">
+      <div className="right-side flex-1 min-w-0 min-h-screen bg-gray-50 dark:bg-gray-900 md:ml-64">
         <Header />
 
         <div className="mt-4"></div>
 
-        <main className="max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-28">
+        <main className="w-full max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-6 md:pt-28">
           <button
             onClick={() => window.history.back()}
             className="inline-flex items-center px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white mb-4"

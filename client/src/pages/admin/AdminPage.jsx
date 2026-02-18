@@ -9,14 +9,14 @@ export default function AdminPage() {
 
   return (
     <>
-      <div className="flex">
+      <div className="flex w-full max-w-full overflow-x-hidden">
         <Navbar />
 
-        <div className="right-side flex-1 min-h-screen bg-gray-50 dark:bg-gray-900 ml-64">
+        <div className="right-side flex-1 min-w-0 min-h-screen bg-gray-50 dark:bg-gray-900 md:ml-64">
           <Header />
 
-          <main className="max-w-4xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-28">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <main className="w-full max-w-4xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-6 md:pt-28">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 overflow-x-auto w-full">
               <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
                 Admin Dashboard
               </h1>
