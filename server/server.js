@@ -26,6 +26,10 @@ pool.query('SELECT NOW()', (err, res) => {
 
 const PORT = process.env.PORT || 3005;
 
+// Environment-based URLs
+const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3005';
+
 const app = express();
 
 // Middleware to parse JSON request bodies
@@ -35,7 +39,8 @@ app.use(express.json());
 app.use((req, res, next) => {
   const allowedOrigins = [
     'http://localhost:5173',
-    'https://capstone2026.onrender.com' 
+    'https://capstone2026.onrender.com',
+    CLIENT_URL // Add the environment variable URL
   ];
   
   const origin = req.headers.origin;
@@ -88,7 +93,7 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:3005/api/auth/google/callback"
+    callbackURL: `${SERVER_URL}/api/auth/google/callback`
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
@@ -701,7 +706,7 @@ app.get('/api/auth/google',
 
 app.get('/api/auth/google/callback',
   passport.authenticate('google', { 
-    failureRedirect: 'http://localhost:5173/login',
+    failureRedirect: `${CLIENT_URL}/login`,
     failureMessage: true 
   }),
   (req, res) => {
@@ -724,7 +729,7 @@ app.get('/api/auth/google/callback',
     const userDataEncoded = encodeURIComponent(JSON.stringify(userData));
     
     // Redirect to frontend with user data
-    res.redirect(`http://localhost:5173/auth-success?user=${userDataEncoded}`);
+    res.redirect(`${CLIENT_URL}/auth-success?user=${userDataEncoded}`);
   }
 );
 

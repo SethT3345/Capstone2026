@@ -14,8 +14,8 @@ export default function AdminNotifications() {
     try {
       setLoading(true);
       console.log('Fetching completions from API...');
-
-      const response = await fetch('http://localhost:3005/api/getCompletions', {
+      
+      const response = await fetch('/api/getCompletions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,8 +41,8 @@ export default function AdminNotifications() {
   const handleVerifyCompletion = async (completion_id) => {
     try {
       console.log('Verifying completion:', completion_id);
-
-      const response = await fetch('http://localhost:3005/api/adminVerify', {
+      
+      const response = await fetch('/api/adminVerify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
