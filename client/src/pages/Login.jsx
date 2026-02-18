@@ -213,7 +213,7 @@ export default function Login() {
                {/* Google login button */}
                <button
                  type="button"
-                 onClick={() => window.location.href = 'http://localhost:3005/api/auth/google'}
+                 onClick={() => window.location.href = '/api/auth/google'}
                  className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 bg-white dark:bg-white/10 border-2 border-gray-300 dark:border-white/20 rounded-lg hover:bg-gray-50 dark:hover:bg-white/20 transition duration-200 shadow-sm"
                >
                  <svg className="w-5 h-5" viewBox="0 0 24 24">
