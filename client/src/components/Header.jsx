@@ -9,6 +9,7 @@ export default function Header({ onSearch, searching, searchError }) {
   const debounceRef = useRef(null);
   const inputRef = useRef(null);
   const focusAfterNavRef = useRef(false);
+  const prevQueryRef = useRef('');
 
   const handleSearch = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
@@ -42,6 +43,12 @@ export default function Header({ onSearch, searching, searchError }) {
 
     // If empty query, treat as a clear: tell the page to reset or navigate to /courses
     if (!searchQuery || searchQuery.trim() === '') {
+      // Only act on clear if the previous value was non-empty. This prevents
+      // navigating to /courses on initial mount or when the q param is programmatic.
+      const wasNonEmpty = prevQueryRef.current && prevQueryRef.current.trim() !== '';
+      prevQueryRef.current = searchQuery; // update for next keystroke
+      if (!wasNonEmpty) return;
+
       const path = location.pathname || '/';
       if (path.startsWith('/admin')) {
         if (onSearch) onSearch('');
@@ -69,6 +76,9 @@ export default function Header({ onSearch, searching, searchError }) {
       }
       navigate(`/courses?q=${encodeURIComponent(searchQuery)}`);
     }, 450);
+
+    // store current for next run
+    prevQueryRef.current = searchQuery;
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
