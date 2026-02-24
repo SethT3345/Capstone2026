@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Profile from './Profile.jsx';
 import Navbar from '../components/Navbar.jsx';
@@ -7,9 +7,10 @@ import EnrolledCourses from '../components/EnrolledCourses.jsx';
 
 export default function Home() {
   const navigate = useNavigate();
+  const [completedClasses, setCompletedClasses] = useState(0);
 
-  // EnrolledCourses component will fetch and filter the user's enrolled courses.
-  // We'll use its function-as-child to render the count where needed.
+  const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+  const user = userStr ? JSON.parse(userStr) : null;
 
   const handleLogout = () => {
     const rememberMeEnabled = localStorage.getItem('remember-me');
@@ -30,6 +31,31 @@ export default function Home() {
 
     navigate('/login');
   };
+
+  useEffect(() => {
+    const fetchCompletedCount = async () => {
+      if (!user || !user.id) return;
+
+      try {
+        const response = await fetch('/api/getCompletedCount', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ user_id: user.id }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          setCompletedClasses(data.completedCount);
+        }
+      } catch (error) {
+        console.error('Error fetching completed count:', error);
+      }
+    };
+
+    fetchCompletedCount();
+  }, []);
 
   return (
     <>
@@ -73,7 +99,7 @@ export default function Home() {
                   </div>
                   <span className="text-3xl font-bold text-gray-900 dark:text-white">
                     <EnrolledCourses>
-                      {({ courses, loading }) => (loading ? '...' : courses ? courses.length : 0)}
+                      {({ courses, loading }) => (loading ? '...' : courses ? Math.max(0, courses.length - completedClasses) : 0)}
                     </EnrolledCourses>
                   </span>
                 </div>
@@ -103,7 +129,7 @@ export default function Home() {
                       />
                     </svg>
                   </div>
-                  <span className="text-3xl font-bold text-gray-900 dark:text-white">0</span>
+                  <span className="text-3xl font-bold text-gray-900 dark:text-white">{completedClasses}</span>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
                   Completed
