@@ -6,12 +6,42 @@ const path = require("path");
 const { Pool } = require("pg");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const LocalStrategy = require("passport-local").Strategy;
 const session = require("express-session");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const helmet = require("helmet");
+const morgan = require("morgan");
+const winston = require("winston");
+const { body, validationResult } = require("express-validator");
 
-// Database connection
-const DB_URL = "postgresql://postgrescapstone_b7f9_user:LWBbdDg3ziJwHTpfFsIHv3y6LYyJLM2g@dpg-d610oupr0fns73cgia7g-a.oregon-postgres.render.com/postgrescapstone_b7f9";
-const pool = new Pool({ 
-  connectionString: DB_URL,
+const BCRYPT_ROUNDS = 10;
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-jwt-secret-change-in-production';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
+
+// Winston logger — writes to console + files
+const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.errors({ stack: true }),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.simple()
+      )
+    }),
+    new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'logs/combined.log' })
+  ]
+});
+
+// Database connection — uses DATABASE_URL env var
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
 
@@ -31,6 +61,16 @@ const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3005';
 
 const app = express();
+
+// Security headers
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
+}));
+
+// HTTP access logging piped through winston
+app.use(morgan('combined', {
+  stream: { write: (msg) => logger.info(msg.trim()) }
+}));
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
@@ -123,6 +163,66 @@ passport.use(new GoogleStrategy({
   }
 ));
 
+// Passport Local Strategy — bcrypt password verification
+passport.use(new LocalStrategy(
+  { usernameField: 'email', passwordField: 'password' },
+  async (email, password, done) => {
+    try {
+      const result = await pool.query('SELECT * FROM users WHERE username = $1', [email]);
+      if (result.rows.length === 0) {
+        return done(null, false, { message: 'Invalid email or password' });
+      }
+      const user = result.rows[0];
+      if (!user.password || user.password === 'google-oauth') {
+        return done(null, false, { message: 'Use Google sign-in for this account' });
+      }
+      const ok = await bcrypt.compare(password, user.password);
+      if (!ok) {
+        return done(null, false, { message: 'Invalid email or password' });
+      }
+      return done(null, user);
+    } catch (err) {
+      return done(err);
+    }
+  }
+));
+
+// JWT helpers
+function signToken(user) {
+  return jwt.sign(
+    { id: user.id, username: user.username, admin: user.admin === true },
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRES_IN }
+  );
+}
+
+function authenticate(req, res, next) {
+  const header = req.headers.authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+  if (token) {
+    try {
+      req.authUser = jwt.verify(token, JWT_SECRET);
+      return next();
+    } catch (err) {
+      logger.warn(`Invalid JWT: ${err.message}`);
+      return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+  }
+  // Fall back to passport session for Google OAuth users
+  if (req.isAuthenticated && req.isAuthenticated()) {
+    req.authUser = { id: req.user.id, username: req.user.username, admin: req.user.admin === true };
+    return next();
+  }
+  return res.status(401).json({ error: 'Authentication required' });
+}
+
+function requireAdmin(req, res, next) {
+  if (!req.authUser || !req.authUser.admin) {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
+  next();
+}
+
 // Have Node serve the files for our built React app
 app.use(express.static(path.resolve(__dirname, "../client/dist")));
 
@@ -176,64 +276,62 @@ app.post("/api/search-course", async (req, res) => {
   }
 });
 
-app.post('/api/loginUser', async (req, res) => {
-  try {
-    console.log('Received login request:', req.body);
-    const username = req.body.email;
-    const password = req.body.password;
-
-    // Validate inputs
-    if (!username || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
+app.post('/api/loginUser',
+  [
+    body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
+    body('password').isString().isLength({ min: 1 }).withMessage('Password required')
+  ],
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: 'Invalid input', details: errors.array() });
     }
-
-    // Query to find user with matching username and password
-    const query = "SELECT * FROM users WHERE username = $1 AND password = $2";
-    const result = await pool.query(query, [username, password]);
-
-    console.log('Query result:', result.rows);
-
-
-    if (result.rows.length === 0) {
-      return res.status(401).json({ error: "Invalid email or password" });
-    }
-    res.status(200).json({ 
-      message: "Login successful", 
-      user: result.rows[0] 
-    });
-  } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ error: "Internal server error", details: error.message });
+    passport.authenticate('local', { session: false }, (err, user, info) => {
+      if (err) {
+        logger.error(`Login error: ${err.message}`);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+      if (!user) {
+        return res.status(401).json({ error: info?.message || 'Invalid email or password' });
+      }
+      const token = signToken(user);
+      logger.info(`User logged in: ${user.username}`);
+      const { password: _pw, ...safeUser } = user;
+      return res.status(200).json({ message: 'Login successful', user: safeUser, token });
+    })(req, res, next);
   }
-})
+)
 
-app.post("/api/createUser", async (req, res) => {
-  try {
-    console.log('Received create user request:', req.body);
-    const id = Math.floor(10000 + Math.random() * 90000);
-    const username = req.body.email;
-    const password = req.body.password;
-    
-    // Validate inputs
-    if (!username || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
+app.post("/api/createUser",
+  [
+    body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
+    body('password').isString().isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ error: 'Invalid input', details: errors.array() });
+      }
+      const id = Math.floor(10000 + Math.random() * 90000);
+      const username = req.body.email;
+      const password = req.body.password;
+
+      const hashed = await bcrypt.hash(password, BCRYPT_ROUNDS);
+
+      const query = 'INSERT INTO users (id, username, password, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW()) RETURNING *';
+      const result = await pool.query(query, [id, username, hashed]);
+      const user = result.rows[0];
+      const token = signToken(user);
+      logger.info(`User created: ${user.username}`);
+      const { password: _pw, ...safeUser } = user;
+      res.status(201).json({ message: 'User created successfully', user: safeUser, token });
+    } catch (error) {
+      logger.error(`Error creating user: ${error.message}`);
+      res.status(500).json({ error: 'Failed to create user', details: error.message });
     }
-    
-    const query = 'INSERT INTO users (id, username, password, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW()) RETURNING *';
-
-    const result = await pool.query(query, [id, username, password]);
-    
-    console.log('User created:', result.rows[0]);
-    
-    res.status(201).json({ 
-      message: "User created successfully", 
-      user: result.rows[0] 
-    });
-  } catch (error) {
-    console.error("Error creating user:", error);
-    res.status(500).json({ error: "Failed to create user", details: error.message });
   }
-})
+)
 
 app.post("/api/checkAdmin", async (req, res) => {
   try {
@@ -725,11 +823,13 @@ app.get('/api/auth/google/callback',
     
     console.log('Storing user data in localStorage:', userData);
     
+    const token = signToken(req.user);
+
     // Encode user data as URL parameter so frontend can store it
     const userDataEncoded = encodeURIComponent(JSON.stringify(userData));
-    
-    // Redirect to frontend with user data
-    res.redirect(`${CLIENT_URL}/auth-success?user=${userDataEncoded}`);
+
+    // Redirect to frontend with user data + JWT
+    res.redirect(`${CLIENT_URL}/auth-success?user=${userDataEncoded}&token=${encodeURIComponent(token)}`);
   }
 );
 
@@ -750,6 +850,20 @@ app.get('/api/auth/logout', (req, res) => {
     }
     res.json({ message: 'Logged out successfully' });
   });
+});
+
+// JWT-protected endpoint — returns the authenticated user from their token
+app.get('/api/auth/me', authenticate, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, username, admin, classes, created_at, updated_at FROM users WHERE id = $1', [req.authUser.id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({ user: result.rows[0] });
+  } catch (error) {
+    logger.error(`Error in /api/auth/me: ${error.message}`);
+    res.status(500).json({ error: 'Failed to fetch user' });
+  }
 });
 
 // Check authentication status and get updated user data

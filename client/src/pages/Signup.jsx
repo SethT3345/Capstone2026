@@ -48,6 +48,9 @@ export default function Signup() {
       const data = await response.json();
 
       if (response.ok) {
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+        }
         // Store user data in localStorage
         localStorage.setItem(
           'user',
