@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar.jsx';
 import Header from '../components/Header.jsx';
 import CourseCard from '../components/CourseCard.jsx';
+import { useLocation } from 'react-router-dom';
 
 export default function Courses() {
   const [courses, setCourses] = useState([]);
@@ -10,10 +11,18 @@ export default function Courses() {
   const [searchResults, setSearchResults] = useState(null);
   const [searchError, setSearchError] = useState('');
   const [searching, setSearching] = useState(false);
+  const location = useLocation();
+  const abortRef = useRef(null);
 
   useEffect(() => {
     // Fetch courses from your database/API
     fetchCourses();
+    // If URL contains a query param `q`, run search
+    const params = new URLSearchParams(location.search);
+    const q = params.get('q');
+    if (q) {
+      handleSearch(q);
+    }
   }, []);
 
   const fetchCourses = async () => {
@@ -37,10 +46,18 @@ export default function Courses() {
   };
 
   const handleSearch = async (searchQuery) => {
-    if (!searchQuery.trim()) {
-      setSearchError('Please enter a course name');
+    if (!searchQuery || !searchQuery.trim()) {
+      // clear search and reload all courses
+      setSearchResults(null);
+      setSearchError('');
+      await fetchCourses();
       return;
     }
+
+    // Cancel previous request if any
+    if (abortRef.current) abortRef.current.abort();
+    abortRef.current = new AbortController();
+    const signal = abortRef.current.signal;
 
     setSearching(true);
     setSearchError('');
@@ -53,6 +70,7 @@ export default function Courses() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ courseName: searchQuery }),
+        signal,
       });
 
       const data = await response.json();
@@ -66,6 +84,10 @@ export default function Courses() {
         console.log('Courses found:', data.courses);
       }
     } catch (error) {
+      if (error.name === 'AbortError') {
+        // aborted - ignore
+        return;
+      }
       console.error('Search error:', error);
       setSearchError('Failed to search. Please try again.');
       setSearchResults(null);

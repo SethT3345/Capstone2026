@@ -22,6 +22,36 @@ export default function AdminCourses() {
     fetchCourses();
   }, []);
 
+  // Handler used by Header when searching on the admin courses page
+  const handleSearch = async (searchQuery) => {
+    // If empty, reload full courses list
+    if (!searchQuery || !searchQuery.trim()) {
+      await fetchCourses();
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch('/api/search-course', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ courseName: searchQuery }),
+      });
+
+      const data = await response.json();
+      if (response.ok && Array.isArray(data.courses)) {
+        setCourses(data.courses);
+      } else {
+        setCourses([]);
+      }
+    } catch (err) {
+      console.error('Search error:', err);
+      setCourses([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   async function fetchCourses() {
     try {
       setLoading(true);
@@ -181,7 +211,7 @@ export default function AdminCourses() {
       <Navbar />
 
       <div className="right-side flex-1 min-w-0 min-h-screen bg-gray-50 dark:bg-gray-900 md:ml-64">
-        <Header />
+        <Header onSearch={handleSearch} searching={loading} searchError={error} />
 
         <main className="w-full max-w-5xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-6 md:pt-28">
           <button

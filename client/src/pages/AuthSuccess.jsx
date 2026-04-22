@@ -6,16 +6,20 @@ export default function AuthSuccess() {
     const [searchParams] = useSearchParams();
 
     useEffect(() => {
-        // Get user data from URL parameter
+        // Get user data and JWT from URL parameters
         const userParam = searchParams.get('user');
-        
+        const tokenParam = searchParams.get('token');
+
         if (userParam) {
             try {
                 // Decode and parse user data
                 const userData = JSON.parse(decodeURIComponent(userParam));
-                
+
                 // Store in localStorage
                 localStorage.setItem('user', JSON.stringify(userData));
+                if (tokenParam) {
+                    localStorage.setItem('token', tokenParam);
+                }
                 
                 console.log('User data stored in localStorage:', userData);
                 

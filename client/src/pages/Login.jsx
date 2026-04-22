@@ -76,7 +76,10 @@ export default function Login() {
            if (response.ok) {
                // Store the complete user object from the server
                const userData = data.user;
-              
+               if (data.token) {
+                   localStorage.setItem('token', data.token);
+               }
+
                // Store in localStorage or sessionStorage based on remember me
                if (rememberMe) {
                    localStorage.setItem('user', JSON.stringify(userData));

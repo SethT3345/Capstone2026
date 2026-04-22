@@ -23,6 +23,42 @@ export default function AdminUsers() {
     fetchUsers();
   }, []);
 
+  // Handler for header search
+  const handleSearch = async (searchQuery) => {
+    // If empty search, refresh full list
+    if (!searchQuery || !searchQuery.trim()) {
+      fetchUsers();
+      return;
+    }
+
+    try {
+      // Try server-side search first
+      const res = await fetch('/api/search-users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: searchQuery }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        // expect array
+        if (Array.isArray(data.users)) setUsers(data.users);
+        return;
+      }
+    } catch (err) {
+      // ignore and fallback to client-side filtering
+    }
+
+    // Fallback: filter local users list
+    const q = searchQuery.toLowerCase();
+    setUsers((prev) =>
+      prev.filter(
+        (u) =>
+          (u.username || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q)
+      )
+    );
+  };
+
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -90,7 +126,7 @@ export default function AdminUsers() {
       <Navbar />
 
       <div className="right-side flex-1 min-w-0 min-h-screen bg-gray-50 dark:bg-gray-900 md:ml-64">
-        <Header />
+        <Header onSearch={handleSearch} searching={false} searchError={null} />
 
         <div className="mt-4"></div>
 
